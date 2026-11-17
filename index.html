@@ -71,12 +71,12 @@ function loadImage(source,name){
   if(sphere){scene.remove(sphere);sphere.geometry.dispose();sphere.material.dispose()}
   const geometry=new THREE.SphereGeometry(500,96,64);
   geometry.scale(-1,1,1);
-  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.BackSide});
+  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
   loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;
   status.textContent=name+' · Esfera 360° 3D';
- },undefined,(err)=>{console.error(err);status.textContent='No se pudo cargar '+name+'. Comprueba que sea un JPG 360°.'});
+ },undefined,(err)=>{console.error(err);status.textContent='Error al cargar '+name+'. Revisa la conexión o el formato JPG.'});
 }
 input.addEventListener('change',()=>{
  const file=input.files?.[0];if(!file)return;
