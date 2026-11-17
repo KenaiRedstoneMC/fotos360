@@ -83,22 +83,50 @@ input.addEventListener('change',()=>{
  objectUrl=URL.createObjectURL(file);
  loadImage(objectUrl,file.name);
 });
-fetch('./fotos/lista.json').then(r=>{if(!r.ok)throw new Error('sin lista');return r.json()}).then(files=>{
- if(!Array.isArray(files)||!files.length){galleryPanel.classList.add('visible');galleryGrid.innerHTML='<div class="emptyGallery">Todavía no hay fotos. Sube JPG/JPEG a la carpeta fotos y añade sus nombres en fotos/lista.json.</div>';return;}
- gallery.hidden=false;galleryPanel.classList.add('visible');
- gallery.innerHTML='<option value="">Elegir foto guardada…</option>';
- files.forEach(file=>{
-  const option=document.createElement('option');option.value=file;option.textContent=file.split('/').pop();gallery.appendChild(option);
-  const card=document.createElement('button');card.className='photoCard';card.type='button';
-  const img=document.createElement('img');img.src='./fotos/'+file;img.alt=file.split('/').pop();img.loading='lazy';
-  const caption=document.createElement('span');caption.textContent=file.split('/').pop();
-  card.append(img,caption);card.addEventListener('click',()=>loadImage('./fotos/'+file,file.split('/').pop()));galleryGrid.appendChild(card);
- });
-}).catch(()=>{});
-gallery.addEventListener('change',()=>{
- if(gallery.value)loadImage('./fotos/'+gallery.value,gallery.value.split('/').pop());
-});
+window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
+
 init();
+</script>
+<script>
+(async()=>{
+ const panel=document.getElementById('galleryPanel');
+ const grid=document.getElementById('galleryGrid');
+ const select=document.getElementById('gallery');
+ const status=document.getElementById('status');
+ try{
+  const response=await fetch('./fotos/lista.json?'+Date.now());
+  if(!response.ok)throw new Error('No se pudo leer lista.json ('+response.status+')');
+  const files=await response.json();
+  if(!Array.isArray(files)||files.length===0)throw new Error('La lista no contiene fotografías.');
+  panel.classList.add('visible');
+  select.hidden=false;
+  select.innerHTML='<option value="">Fotos guardadas ('+files.length+')</option>';
+  for(const file of files){
+   const option=document.createElement('option');
+   option.value=file;option.textContent=file;select.appendChild(option);
+   const card=document.createElement('button');
+   card.className='photoCard';card.type='button';
+   const img=document.createElement('img');
+   img.src='./fotos/'+encodeURIComponent(file);
+   img.alt=file;img.loading='lazy';
+   img.onerror=()=>{img.alt='No se pudo cargar';img.style.background='#442';};
+   const caption=document.createElement('span');caption.textContent=file;
+   card.append(img,caption);
+   card.addEventListener('click',()=>{
+    if(window.loadStored360)window.loadStored360(file);
+    else status.textContent='El motor 3D no se ha cargado. Recarga la página.';
+   });
+   grid.appendChild(card);
+  }
+  status.textContent=files.length+' fotografías en la galería · Pulsa una para verla en 360°';
+ }catch(error){
+  panel.classList.add('visible');
+  grid.innerHTML='<div class="emptyGallery">'+error.message+'</div>';
+  status.textContent='No se pudo cargar la galería';
+  console.error(error);
+ }
+ select.addEventListener('change',()=>{if(select.value&&window.loadStored360)window.loadStored360(select.value)});
+})();
 </script>
 </body>
 </html>
