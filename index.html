@@ -15,7 +15,7 @@
 #welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
 .content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
-#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#galleryPanel{position:fixed;z-index:6;left:0;right:0;bottom:54px;max-height:38vh;overflow:auto;padding:12px 16px;background:linear-gradient(transparent,#050705 12%);display:none}#galleryPanel.visible{display:block}#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px;max-width:1100px;margin:auto}.photoCard{border:1px solid #ffffff30;background:#101810;border-radius:12px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer}.photoCard img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}.photoCard span{display:block;padding:8px;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:12px;font-size:.85rem}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
 @media(max-width:600px){.top{padding-left:12px;padding-right:12px}.brand{font-size:.72rem}.actions{gap:5px}button{padding:9px 11px;font-size:.76rem}#status{font-size:.7rem}}
 </style>
@@ -25,7 +25,7 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Esfera 3D 360° real.<br>Abre una fotografía panorámica de tu GoPro MAX y mira alrededor desde el interior de la esfera.</p><button id="choose">＋ Abrir fotografía 360°</button></div></div>
 <div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><select id="gallery" aria-label="Fotos guardadas" title="Fotos guardadas" hidden><option>Fotos guardadas</option></select><button id="open">Abrir foto</button><button id="reset" disabled>Recentrar</button><button id="full" disabled>⛶</button></div></div>
 <input id="file" type="file" accept=".jpg,.jpeg,image/jpeg">
-<div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
+<section id="galleryPanel" aria-label="Galería de fotografías"><div id="galleryGrid"></div></section><div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
@@ -33,6 +33,7 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 const stage=document.getElementById('stage'),input=document.getElementById('file'),gallery=document.getElementById('gallery');
+const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.getElementById('galleryGrid');
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
 const reset=document.getElementById('reset'),full=document.getElementById('full');
 let renderer,scene,camera,controls,sphere,texture,objectUrl=null,loaded=false;
@@ -83,11 +84,15 @@ input.addEventListener('change',()=>{
  loadImage(objectUrl,file.name);
 });
 fetch('./fotos/lista.json').then(r=>{if(!r.ok)throw new Error('sin lista');return r.json()}).then(files=>{
- if(!Array.isArray(files)||!files.length)return;
- gallery.hidden=false;
+ if(!Array.isArray(files)||!files.length){galleryPanel.classList.add('visible');galleryGrid.innerHTML='<div class="emptyGallery">Todavía no hay fotos. Sube JPG/JPEG a la carpeta fotos y añade sus nombres en fotos/lista.json.</div>';return;}
+ gallery.hidden=false;galleryPanel.classList.add('visible');
  gallery.innerHTML='<option value="">Elegir foto guardada…</option>';
  files.forEach(file=>{
   const option=document.createElement('option');option.value=file;option.textContent=file.split('/').pop();gallery.appendChild(option);
+  const card=document.createElement('button');card.className='photoCard';card.type='button';
+  const img=document.createElement('img');img.src='./fotos/'+file;img.alt=file.split('/').pop();img.loading='lazy';
+  const caption=document.createElement('span');caption.textContent=file.split('/').pop();
+  card.append(img,caption);card.addEventListener('click',()=>loadImage('./fotos/'+file,file.split('/').pop()));galleryGrid.appendChild(card);
  });
 }).catch(()=>{});
 gallery.addEventListener('change',()=>{
