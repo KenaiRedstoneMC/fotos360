@@ -41,8 +41,8 @@ function init(){
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
  camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1100);
  camera.position.set(0,0,0.01);
- renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:false});
- renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+ renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2.5));renderer.setSize(innerWidth,innerHeight);
  renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
  controls=new OrbitControls(camera,renderer.domElement);
  controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
@@ -67,11 +67,15 @@ function loadImage(source,name){
  loader.load(source,(loadedTexture)=>{
   if(texture)texture.dispose();texture=loadedTexture;
   texture.colorSpace=THREE.SRGBColorSpace;
+  texture.mapping=THREE.UVMapping;
+  texture.generateMipmaps=true;
+  texture.minFilter=THREE.LinearMipmapLinearFilter;
+  texture.magFilter=THREE.LinearFilter;
   texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
   if(sphere){scene.remove(sphere);sphere.geometry.dispose();sphere.material.dispose()}
-  const geometry=new THREE.SphereGeometry(500,96,64);
+  const geometry=new THREE.SphereGeometry(500,128,96,0,Math.PI*2,0,Math.PI);
   geometry.scale(-1,1,1);
-  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide});
+  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
   loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;
