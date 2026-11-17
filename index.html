@@ -15,7 +15,7 @@
 #welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
 .content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
-#galleryPanel{position:fixed;z-index:6;left:0;right:0;bottom:54px;max-height:38vh;overflow:auto;padding:12px 16px;background:linear-gradient(transparent,#050705 12%);display:none}#galleryPanel.visible{display:block}#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:12px;max-width:1100px;margin:auto}.photoCard{border:1px solid #ffffff30;background:#101810;border-radius:12px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer}.photoCard img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}.photoCard span{display:block;padding:8px;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:12px;font-size:.85rem}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#galleryPanel{position:fixed;z-index:7;left:0;right:0;top:64px;bottom:48px;overflow:auto;padding:16px;background:#050705;display:none}#galleryPanel.visible{display:block}#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px;max-width:1400px;margin:auto}.photoCard{border:1px solid #ffffff30;background:#101810;border-radius:12px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer}.photoCard img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}.photoCard span{display:block;padding:8px;font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:12px;font-size:.85rem}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
 @media(max-width:600px){.top{padding-left:12px;padding-right:12px}.brand{font-size:.72rem}.actions{gap:5px}button{padding:9px 11px;font-size:.76rem}#status{font-size:.7rem}}
 </style>
@@ -88,45 +88,7 @@ window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
 init();
 </script>
 <script>
-(async()=>{
- const panel=document.getElementById('galleryPanel');
- const grid=document.getElementById('galleryGrid');
- const select=document.getElementById('gallery');
- const status=document.getElementById('status');
- try{
-  const response=await fetch('./fotos/lista.json?'+Date.now());
-  if(!response.ok)throw new Error('No se pudo leer lista.json ('+response.status+')');
-  const files=await response.json();
-  if(!Array.isArray(files)||files.length===0)throw new Error('La lista no contiene fotografías.');
-  panel.classList.add('visible');
-  select.hidden=false;
-  select.innerHTML='<option value="">Fotos guardadas ('+files.length+')</option>';
-  for(const file of files){
-   const option=document.createElement('option');
-   option.value=file;option.textContent=file;select.appendChild(option);
-   const card=document.createElement('button');
-   card.className='photoCard';card.type='button';
-   const img=document.createElement('img');
-   img.src='./fotos/'+encodeURIComponent(file);
-   img.alt=file;img.loading='lazy';
-   img.onerror=()=>{img.alt='No se pudo cargar';img.style.background='#442';};
-   const caption=document.createElement('span');caption.textContent=file;
-   card.append(img,caption);
-   card.addEventListener('click',()=>{
-    if(window.loadStored360)window.loadStored360(file);
-    else status.textContent='El motor 3D no se ha cargado. Recarga la página.';
-   });
-   grid.appendChild(card);
-  }
-  status.textContent=files.length+' fotografías en la galería · Pulsa una para verla en 360°';
- }catch(error){
-  panel.classList.add('visible');
-  grid.innerHTML='<div class="emptyGallery">'+error.message+'</div>';
-  status.textContent='No se pudo cargar la galería';
-  console.error(error);
- }
- select.addEventListener('change',()=>{if(select.value&&window.loadStored360)window.loadStored360(select.value)});
-})();
+(()=>{const files=["GP__0077.JPG","GS__0015.JPG","GS__0016.JPG","GS__0017.JPG","GS__0021.JPG","GS__0023.JPG","GS__0026.JPG","GS__0038.JPG","GS__0039.JPG","GS__0045.JPG","GS__0068.JPG","GS__0070.JPG","GS__0081.JPG","GS__0082.JPG","GS__0083.JPG","GS__0084.JPG","GS__0085.JPG","GS__0086.JPG","GS__0087.JPG","GS__0088.JPG","GS__0089.JPG","GS__0090.JPG","GS__0091.JPG","GS__0092.JPG","GS__0093.JPG","GS__0094.JPG","GS__0095.JPG","GS__0105.JPG"];const panel=document.getElementById('galleryPanel'),grid=document.getElementById('galleryGrid'),select=document.getElementById('gallery'),status=document.getElementById('status');panel.classList.add('visible');select.hidden=false;select.innerHTML='<option value="">Elegir foto ('+files.length+')</option>';for(const file of files){const option=document.createElement('option');option.value=file;option.textContent=file;select.appendChild(option);const card=document.createElement('button');card.className='photoCard';card.type='button';const img=document.createElement('img');img.src='https://raw.githubusercontent.com/KenaiRedstoneMC/fotos360/main/fotos/'+encodeURIComponent(file);img.alt=file;img.loading='lazy';const caption=document.createElement('span');caption.textContent=file;card.append(img,caption);card.addEventListener('click',()=>{if(window.loadStored360)window.loadStored360(file);else status.textContent='El visor 360 está cargando…'});grid.appendChild(card);}select.addEventListener('change',()=>{if(select.value&&window.loadStored360)window.loadStored360(select.value)});status.textContent=files.length+' fotografías · Pulsa una para verla en 360°';})();
 </script>
 </body>
 </html>
