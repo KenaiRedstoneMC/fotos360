@@ -10,7 +10,7 @@
 #stage{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
 .top{position:fixed;z-index:5;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:max(14px,env(safe-area-inset-top)) 18px 14px;background:linear-gradient(#000a,transparent);pointer-events:none}
 .brand{font-weight:900;letter-spacing:.12em;font-size:.9rem;text-shadow:0 2px 8px #000}.brand span{color:#a4f43b}
-.actions{display:flex;gap:8px;pointer-events:auto}button{border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px)}button:hover{border-color:#a4f43b;color:#a4f43b}button:disabled{opacity:.4;cursor:default}
+.actions{display:flex;gap:8px;pointer-events:auto}button{border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px)}button:hover,select:hover{border-color:#a4f43b;color:#a4f43b}button:disabled{opacity:.4;cursor:default}select{max-width:180px;border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:9px 12px;font-weight:700}
 #file{display:none}
 #welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
 .content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
@@ -23,7 +23,7 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 <body>
 <div id="stage"></div>
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Esfera 3D 360° real.<br>Abre una fotografía panorámica de tu GoPro MAX y mira alrededor desde el interior de la esfera.</p><button id="choose">＋ Abrir fotografía 360°</button></div></div>
-<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="open">Abrir foto</button><button id="reset" disabled>Recentrar</button><button id="full" disabled>⛶</button></div></div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><select id="gallery" aria-label="Fotos guardadas" title="Fotos guardadas" hidden><option>Fotos guardadas</option></select><button id="open">Abrir foto</button><button id="reset" disabled>Recentrar</button><button id="full" disabled>⛶</button></div></div>
 <input id="file" type="file" accept=".jpg,.jpeg,image/jpeg">
 <div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
 <script type="importmap">
@@ -32,7 +32,7 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-const stage=document.getElementById('stage'),input=document.getElementById('file');
+const stage=document.getElementById('stage'),input=document.getElementById('file'),gallery=document.getElementById('gallery');
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
 const reset=document.getElementById('reset'),full=document.getElementById('full');
 let renderer,scene,camera,controls,sphere,texture,objectUrl=null,loaded=false;
@@ -59,13 +59,10 @@ document.getElementById('reset').addEventListener('click',()=>{
  if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);controls.update()}
 });
 full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
-input.addEventListener('change',()=>{
- const file=input.files?.[0];if(!file)return;
- if(objectUrl)URL.revokeObjectURL(objectUrl);
- objectUrl=URL.createObjectURL(file);
- status.textContent='Cargando imagen en la esfera 3D…';
+function loadImage(source,name){
+ status.textContent='Cargando '+name+' en la esfera 3D…';
  const loader=new THREE.TextureLoader();
- loader.load(objectUrl,(loadedTexture)=>{
+ loader.load(source,(loadedTexture)=>{
   if(texture)texture.dispose();texture=loadedTexture;
   texture.colorSpace=THREE.SRGBColorSpace;
   texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
@@ -76,8 +73,25 @@ input.addEventListener('change',()=>{
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
   loaded=true;welcome.classList.add('hidden');reset.disabled=false;full.disabled=false;
-  status.textContent=file.name+' · Esfera 360° 3D';
- },undefined,(err)=>{console.error(err);status.textContent='No se pudo cargar la imagen. Usa un JPG panorámico 360° (formato 2:1).'});
+  status.textContent=name+' · Esfera 360° 3D';
+ },undefined,(err)=>{console.error(err);status.textContent='No se pudo cargar '+name+'. Comprueba que sea un JPG 360°.'});
+}
+input.addEventListener('change',()=>{
+ const file=input.files?.[0];if(!file)return;
+ if(objectUrl)URL.revokeObjectURL(objectUrl);
+ objectUrl=URL.createObjectURL(file);
+ loadImage(objectUrl,file.name);
+});
+fetch('./fotos/lista.json').then(r=>{if(!r.ok)throw new Error('sin lista');return r.json()}).then(files=>{
+ if(!Array.isArray(files)||!files.length)return;
+ gallery.hidden=false;
+ gallery.innerHTML='<option value="">Elegir foto guardada…</option>';
+ files.forEach(file=>{
+  const option=document.createElement('option');option.value=file;option.textContent=file.split('/').pop();gallery.appendChild(option);
+ });
+}).catch(()=>{});
+gallery.addEventListener('change',()=>{
+ if(gallery.value)loadImage('./fotos/'+gallery.value,gallery.value.split('/').pop());
 });
 init();
 </script>
