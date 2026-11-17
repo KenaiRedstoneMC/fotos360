@@ -5,97 +5,81 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#050705">
 <title>Kenai 360 Player</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
 <style>
-:root{color-scheme:dark;--green:#a4f43b;--glass:rgba(10,15,11,.78)}
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050705;color:#fff;font-family:system-ui,Segoe UI,Arial,sans-serif}
-#panorama{position:fixed;inset:0;width:100%;height:100%;height:100dvh;background:#050705}
-.pnlm-container{background:#050705}
-.topbar{position:fixed;z-index:20;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding: max(14px,env(safe-area-inset-top)) 18px 14px;background:linear-gradient(180deg,rgba(0,0,0,.75),transparent);pointer-events:none}
-.brand{font-weight:850;letter-spacing:.12em;font-size:.9rem;text-shadow:0 2px 8px #000}
-.brand span{color:var(--green)}
-.actions{display:flex;gap:8px;pointer-events:auto}
-button{border:1px solid #ffffff35;background:var(--glass);backdrop-filter:blur(12px);color:white;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer}
-button:hover{border-color:var(--green);color:var(--green)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050705;color:#fff;font-family:system-ui,Segoe UI,Arial,sans-serif}
+#stage{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
+.top{position:fixed;z-index:5;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:max(14px,env(safe-area-inset-top)) 18px 14px;background:linear-gradient(#000a,transparent);pointer-events:none}
+.brand{font-weight:900;letter-spacing:.12em;font-size:.9rem;text-shadow:0 2px 8px #000}.brand span{color:#a4f43b}
+.actions{display:flex;gap:8px;pointer-events:auto}button{border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px)}button:hover{border-color:#a4f43b;color:#a4f43b}button:disabled{opacity:.4;cursor:default}
 #file{display:none}
-#empty{position:fixed;z-index:10;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#18251a,#050705 68%)}
-#empty .content{max-width:440px}
-.logo{font-size:clamp(2rem,8vw,4rem);font-weight:900;letter-spacing:-.06em;margin:0 0 8px}
-.logo span{color:var(--green)}
-#empty p{color:#b6c0b6;line-height:1.6;margin:0 0 22px}
-#choose{background:var(--green);color:#10170a;border:0;padding:13px 22px}
-#status{position:fixed;z-index:20;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.58);color:#d9e2d8;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
+.content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
+p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
+#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
-.pnlm-controls{border-radius:12px;overflow:hidden}
-@media(max-width:600px){.topbar{padding-left:12px;padding-right:12px}.brand{font-size:.75rem}.actions{gap:5px}button{padding:9px 11px;font-size:.78rem}#status{font-size:.72rem}}
+@media(max-width:600px){.top{padding-left:12px;padding-right:12px}.brand{font-size:.72rem}.actions{gap:5px}button{padding:9px 11px;font-size:.76rem}#status{font-size:.7rem}}
 </style>
 </head>
 <body>
-<div id="panorama"></div>
-<div id="empty">
- <div class="content">
-  <div class="logo">KENAI<span>360</span></div>
-  <p>Reproductor de fotografías 360°<br>Abre una foto JPG panorámica de tu GoPro MAX y explora todo a tu alrededor.</p>
-  <button id="choose">＋ Abrir fotografía 360°</button>
- </div>
-</div>
-<div class="topbar">
- <div class="brand">KENAI_<span>360 PLAYER</span></div>
- <div class="actions">
-  <button id="open">Abrir foto</button>
-  <button id="reset" disabled>Recentrar</button>
-  <button id="fullscreen" disabled>⛶</button>
- </div>
-</div>
+<div id="stage"></div>
+<div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Esfera 3D 360° real.<br>Abre una fotografía panorámica de tu GoPro MAX y mira alrededor desde el interior de la esfera.</p><button id="choose">＋ Abrir fotografía 360°</button></div></div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="open">Abrir foto</button><button id="reset" disabled>Recentrar</button><button id="full" disabled>⛶</button></div></div>
 <input id="file" type="file" accept=".jpg,.jpeg,image/jpeg">
-<div id="status">Arrastra para mirar · Rueda para zoom</div>
-<script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
-<script>
-const input=document.getElementById('file');
-const status=document.getElementById('status');
-const empty=document.getElementById('empty');
-const reset=document.getElementById('reset');
-const fullscreen=document.getElementById('fullscreen');
-let viewer=null,objectUrl=null;
-function pick(){input.click()}
-document.getElementById('choose').addEventListener('click',pick);
-document.getElementById('open').addEventListener('click',pick);
-reset.addEventListener('click',()=>{if(viewer){viewer.setPitch(0);viewer.setYaw(0);viewer.setHfov(100)}});
-fullscreen.addEventListener('click',()=>{
- const el=document.documentElement;
- if(!document.fullscreenElement){el.requestFullscreen?.()}else{document.exitFullscreen?.()}
+<div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+const stage=document.getElementById('stage'),input=document.getElementById('file');
+const welcome=document.getElementById('welcome'),status=document.getElementById('status');
+const reset=document.getElementById('reset'),full=document.getElementById('full');
+let renderer,scene,camera,controls,sphere,texture,objectUrl=null,loaded=false;
+function init(){
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
+ camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1100);
+ camera.position.set(0,0,0.01);
+ renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:false});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+ controls=new OrbitControls(camera,renderer.domElement);
+ controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
+ controls.rotateSpeed=-.35;controls.zoomSpeed=.8;controls.minDistance=.01;controls.maxDistance=.01;
+ controls.enableZoom=true;controls.enablePan=false;
+ window.addEventListener('resize',resize);
+ animate();
+}
+function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
+function animate(){requestAnimationFrame(animate);if(controls)controls.update();if(renderer&&scene&&camera)renderer.render(scene,camera)}
+function openPicker(){input.click()}
+document.getElementById('choose').addEventListener('click',openPicker);
+document.getElementById('open').addEventListener('click',openPicker);
+document.getElementById('reset').addEventListener('click',()=>{
+ if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);controls.update()}
 });
+full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
 input.addEventListener('change',()=>{
  const file=input.files?.[0];if(!file)return;
  if(objectUrl)URL.revokeObjectURL(objectUrl);
  objectUrl=URL.createObjectURL(file);
- if(viewer){viewer.destroy();viewer=null}
- empty.classList.add('hidden');
- reset.disabled=true;fullscreen.disabled=true;
- status.textContent='Cargando fotografía…';
- try{
-  viewer=pannellum.viewer('panorama',{
-   type:'equirectangular',panorama:objectUrl,autoLoad:true,
-   autoRotate:0,showControls:true,showZoomCtrl:true,showFullscreenCtrl:false,
-   compass:false,mouseZoom:true,draggable:true,keyboardZoom:true,
-   hfov:100,minHfov:35,maxHfov:120,pitch:0,yaw:0,
-   hotSpotDebug:false
-  });
-  viewer.on('load',()=>{
-   status.textContent=file.name+' · 360°';
-   reset.disabled=false;fullscreen.disabled=false;
-  });
-  viewer.on('error',()=>{
-   status.textContent='No se pudo interpretar esta foto como panorámica 360°.';
-   empty.classList.remove('hidden');
-  });
- }catch(e){
-  status.textContent='No se pudo abrir la imagen.';
-  empty.classList.remove('hidden');
- }
+ status.textContent='Cargando imagen en la esfera 3D…';
+ const loader=new THREE.TextureLoader();
+ loader.load(objectUrl,(loadedTexture)=>{
+  if(texture)texture.dispose();texture=loadedTexture;
+  texture.colorSpace=THREE.SRGBColorSpace;
+  texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  if(sphere){scene.remove(sphere);sphere.geometry.dispose();sphere.material.dispose()}
+  const geometry=new THREE.SphereGeometry(500,96,64);
+  geometry.scale(-1,1,1);
+  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.BackSide});
+  sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
+  controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
+  loaded=true;welcome.classList.add('hidden');reset.disabled=false;full.disabled=false;
+  status.textContent=file.name+' · Esfera 360° 3D';
+ },undefined,(err)=>{console.error(err);status.textContent='No se pudo cargar la imagen. Usa un JPG panorámico 360° (formato 2:1).'});
 });
-window.addEventListener('beforeunload',()=>{if(objectUrl)URL.revokeObjectURL(objectUrl)});
+init();
 </script>
 </body>
 </html>
