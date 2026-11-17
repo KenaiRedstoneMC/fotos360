@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b120d">
+  <title>Kenai 360° — Fotos 360</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.css">
+  <style>
+    :root{color-scheme:dark;--bg:#080d0a;--panel:#111a14;--green:#9bea35;--muted:#a5b2a7}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#1a2a1a 0,#080d0a 58%);color:#f4f8f3;font:16px system-ui,Segoe UI,Arial,sans-serif;min-height:100vh}
+    header{padding:28px 20px 18px;text-align:center}header .tag{color:var(--green);font-size:.75rem;font-weight:800;letter-spacing:.22em}h1{margin:7px 0;font-size:clamp(1.8rem,5vw,3rem)}header p{margin:0;color:var(--muted)}
+    main{width:min(1100px,calc(100% - 28px));margin:0 auto 40px}.panel{background:rgba(17,26,20,.94);border:1px solid #2b3c2c;border-radius:18px;padding:18px;box-shadow:0 18px 55px #0008}
+    .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+    input[type=file]{max-width:100%;color:var(--muted);background:#0a110c;border:1px solid #344735;border-radius:10px;padding:10px;flex:1}
+    button{border:1px solid #5d852f;background:#1b2a16;color:#efffe2;border-radius:10px;padding:11px 15px;font-weight:700;cursor:pointer}
+    button:hover{background:#2b421f}button:disabled{opacity:.45;cursor:not-allowed}
+    #panorama{width:100%;height:min(65vh,620px);min-height:300px;background:#050806;border-radius:12px;overflow:hidden}
+    .hint{color:var(--muted);font-size:.9rem;line-height:1.5;margin:14px 2px 0}.status{color:var(--green);font-size:.9rem;margin:10px 2px 0;min-height:1.3em}
+    footer{text-align:center;color:#758277;font-size:.8rem;padding:0 15px 28px}
+    @media(max-width:600px){.panel{padding:12px}#panorama{height:55vh;min-height:260px}.toolbar button{flex:1}}
+  </style>
+</head>
+<body>
+  <header><div class="tag">KENAI_REDSTONE</div><h1>Visor de fotos 360°</h1><p>Explora tus fotografías panorámicas de GoPro MAX</p></header>
+  <main><section class="panel">
+    <div class="toolbar">
+      <input id="file" type="file" accept=".jpg,.jpeg,image/jpeg" aria-label="Seleccionar foto JPG 360">
+      <button id="fullscreen" disabled>Pantalla completa</button>
+      <button id="reset" disabled>Reiniciar vista</button>
+    </div>
+    <div id="panorama" aria-label="Visor panorámico 360 grados"></div>
+    <div class="status" id="status" role="status">Selecciona una fotografía JPG 360° para empezar.</div>
+    <p class="hint">Usa el ratón o arrastra con el dedo para mirar alrededor. Puedes acercar o alejar con la rueda del ratón o los controles del visor. La fotografía se procesa localmente en tu navegador: no se sube a GitHub.</p>
+  </section></main>
+  <footer>Kenai 360° · Visor de fotografías panorámicas</footer>
+  <script src="https://cdn.jsdelivr.net/npm/pannellum@2.5.6/build/pannellum.js"></script>
+  <script>
+    const input=document.getElementById('file'),status=document.getElementById('status');
+    const full=document.getElementById('fullscreen'),reset=document.getElementById('reset');
+    let viewer=null,objectUrl=null;
+    input.addEventListener('change',()=>{
+      const file=input.files&&input.files[0];if(!file)return;
+      if(objectUrl)URL.revokeObjectURL(objectUrl);
+      objectUrl=URL.createObjectURL(file);
+      if(viewer){viewer.destroy();viewer=null;}
+      status.textContent='Cargando '+file.name+'…';
+      try{
+        viewer=pannellum.viewer('panorama',{type:'equirectangular',panorama:objectUrl,autoLoad:true,showZoomCtrl:true,showFullscreenCtrl:true,compass:false, hfov:100, pitch:0, yaw:0});
+        viewer.on('load',()=>{status.textContent='Foto cargada: '+file.name;full.disabled=false;reset.disabled=false;});
+        viewer.on('error',()=>{status.textContent='No se pudo abrir la imagen. Comprueba que sea un JPG panorámico compatible.';});
+      }catch(e){status.textContent='No se pudo abrir esta imagen.';}
+    });
+    full.addEventListener('click',()=>{if(viewer){const el=document.getElementById('panorama');if(el.requestFullscreen)el.requestFullscreen();}});
+    reset.addEventListener('click',()=>{if(viewer){viewer.setPitch(0);viewer.setYaw(0);viewer.setHfov(100);}});
+    window.addEventListener('beforeunload',()=>{if(objectUrl)URL.revokeObjectURL(objectUrl);});
+  </script>
+</body>
+</html>
