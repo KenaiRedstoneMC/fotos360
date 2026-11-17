@@ -73,13 +73,18 @@ function loadImage(source,name){
   texture.magFilter=THREE.LinearFilter;
   texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
   if(sphere){scene.remove(sphere);sphere.geometry.dispose();sphere.material.dispose()}
-  const geometry=new THREE.SphereGeometry(500,128,96,0,Math.PI*2,0,Math.PI);
+  // Adaptar la esfera al formato real de cada JPG. Un 2:1 cubre 360° x 180°;
+  // formatos más anchos (por ejemplo 3:1) cubren menos ángulo vertical.
+  const aspect=loadedTexture.image.width/loadedTexture.image.height;
+  const verticalAngle=Math.min(Math.PI,Math.PI*2/aspect);
+  const thetaStart=(Math.PI-verticalAngle)/2;
+  const geometry=new THREE.SphereGeometry(500,160,96,0,Math.PI*2,thetaStart,verticalAngle);
   geometry.scale(-1,1,1);
   const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
   loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;
-  status.textContent=name+' · Esfera 360° 3D';
+  status.textContent=name+' · Panorama 360° · formato '+loadedTexture.image.width+'×'+loadedTexture.image.height;
  },undefined,(err)=>{console.error(err);status.textContent='Error al cargar '+name+'. Revisa la conexión o el formato JPG.'});
 }
 input.addEventListener('change',()=>{
