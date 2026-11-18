@@ -17,7 +17,8 @@
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
 #galleryPanel{position:fixed;z-index:7;inset:76px 18px 58px;overflow:auto;padding:20px;background:#0a100deF;border:1px solid #ffffff24;border-radius:18px;backdrop-filter:blur(16px);display:none}#galleryPanel.visible{display:block}.galleryHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.galleryHeading h2{font-size:1.15rem;margin:0}.galleryHeading small{color:#aeb9ae}#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.photoCard{width:100%;border:1px solid #ffffff25;background:#111b13;border-radius:13px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer;transition:transform .18s,border-color .18s}.photoCard:hover,.photoCard:focus-visible{border-color:#a4f43b;transform:translateY(-3px);outline:none}.photoCard img{display:block;width:100%;height:145px;object-fit:cover;background:#050705}.photoCard span{display:block;padding:10px 12px;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:24px;font-size:.9rem}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
-\n@media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{inset:64px 8px 48px;padding:13px}#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.photoCard img{height:112px}.photoCard span{font-size:.72rem;padding:8px}}
+
+@media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{inset:64px 8px 48px;padding:13px}#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.photoCard img{height:112px}.photoCard span{font-size:.72rem;padding:8px}}
 
 /* KENAI 360 — interfaz futurista */
 :root{color-scheme:dark}
@@ -161,7 +162,8 @@ init();
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
-  // El orden del JSON es el orden cronológico de subida a GitHub; no ordenar alfabéticamente.\n  const files=[...new Set(data.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))];
+  // El orden del JSON es el orden cronológico de subida a GitHub; no ordenar alfabéticamente.
+  const files=[...new Set(data.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))];
   count.textContent=files.length+' fotos';
   if(!files.length){grid.innerHTML='<div class="emptyGallery">Todavía no hay fotografías.</div>';return;}
   for(const file of files){
