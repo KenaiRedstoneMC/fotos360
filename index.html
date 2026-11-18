@@ -49,7 +49,7 @@ p{color:#b5d3df}
 .photoCard img{height:155px;object-fit:cover;filter:saturate(1.12) contrast(1.04);border-bottom:1px solid #00d9ff35}
 .photoCard span{position:relative;z-index:1;color:#dffaff;font-size:.8rem;letter-spacing:.025em}
 #status{z-index:8;background:rgba(3,13,25,.82);border:1px solid #00d9ff55;color:#bafaff;box-shadow:0 0 18px #00d9ff20;backdrop-filter:blur(12px)}
-@media(max-width:600px){.content{padding:30px 20px}.photoCard img{height:118px}}
+@media(max-width:600px){.content{padding:30px 20px}.photoCard img{height:118px}#effects{max-width:105px;padding:7px 6px;font-size:.65rem}.actions{flex-wrap:wrap;justify-content:flex-end;max-width:76vw}#download{font-size:.65rem}}
 
 </style>
 </head>
@@ -170,7 +170,7 @@ function makePlanet(inverted){
  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
   const nx=(x-size/2)/(size/2),ny=(y-size/2)/(size/2),r2=nx*nx+ny*ny,i=(y*size+x)*4;
   if(r2>1){d[i+3]=0;continue;}
-  const z=(1-r2)/(1+r2),k=2/(1+r2),dx=nx*k,dy=ny*k*(inverted?-1:1),dz=z*(inverted?-1:1);
+  const z=(1-r2)/(1+r2),k=2/(1+r2),dx=nx*k,dy=z*(inverted?-1:1),dz=ny*k;
   const lon=Math.atan2(dx,dz),lat=Math.asin(Math.max(-1,Math.min(1,dy)));
   const u=((lon/(Math.PI*2)+.5)%1+1)%1,v=Math.max(0,Math.min(1,.5-lat/Math.PI));
   const px=Math.min(w-1,Math.floor(u*w)),py=Math.min(h-1,Math.floor(v*h)),p=(py*w+px)*4;
