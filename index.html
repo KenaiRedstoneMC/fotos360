@@ -121,7 +121,42 @@ window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
 init();
 </script>
 <script>
-(()=>{const files=["GP__0077.JPG","GS__0015.JPG","GS__0016.JPG","GS__0017.JPG","GS__0021.JPG","GS__0023.JPG","GS__0026.JPG","GS__0038.JPG","GS__0039.JPG","GS__0045.JPG","GS__0068.JPG","GS__0070.JPG","GS__0081.JPG","GS__0082.JPG","GS__0083.JPG","GS__0084.JPG","GS__0085.JPG","GS__0086.JPG","GS__0087.JPG","GS__0088.JPG","GS__0089.JPG","GS__0090.JPG","GS__0091.JPG","GS__0092.JPG","GS__0093.JPG","GS__0094.JPG","GS__0095.JPG","GS__0105.JPG"];const panel=document.getElementById('galleryPanel'),grid=document.getElementById('galleryGrid'),select=document.getElementById('gallery'),status=document.getElementById('status');document.getElementById('toggleGallery').addEventListener('click',()=>panel.classList.toggle('visible'));select.hidden=false;select.innerHTML='<option value="">Elegir foto ('+files.length+')</option>';for(const file of files){const option=document.createElement('option');option.value=file;option.textContent=file;select.appendChild(option);const card=document.createElement('button');card.className='photoCard';card.type='button';const img=document.createElement('img');img.src='https://raw.githubusercontent.com/KenaiRedstoneMC/fotos360/main/fotos/'+encodeURIComponent(file);img.alt=file;img.loading='lazy';const caption=document.createElement('span');caption.textContent=file;card.append(img,caption);card.addEventListener('click',()=>{if(window.loadStored360)window.loadStored360(file);else status.textContent='El visor 360 está cargando…'});grid.appendChild(card);}select.addEventListener('change',()=>{if(select.value&&window.loadStored360)window.loadStored360(select.value)});status.textContent=files.length+' fotografías · Pulsa una para verla en 360°';})();
+(async()=>{
+ const panel=document.getElementById('galleryPanel');
+ const grid=document.getElementById('galleryGrid');
+ const select=document.getElementById('gallery');
+ const status=document.getElementById('status');
+ document.getElementById('toggleGallery').addEventListener('click',()=>panel.classList.toggle('visible'));
+ select.hidden=false;
+ try {
+  const response=await fetch('./fotos/lista.json? t='+Date.now(),{cache:'no-store'});
+  if(!response.ok) throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
+  const data=await response.json();
+  if(!Array.isArray(data)) throw new Error('lista.json debe contener una lista JSON de nombres.');
+  const files=[...new Set(data.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))];
+  select.innerHTML='<option value="">Elegir foto ('+files.length+')</option>';
+  for(const file of files){
+   const option=document.createElement('option');
+   option.value=file; option.textContent=file; select.appendChild(option);
+   const card=document.createElement('button');
+   card.className='photoCard'; card.type='button';
+   const img=document.createElement('img');
+   img.src='./fotos/'+encodeURIComponent(file);
+   img.alt=file; img.loading='lazy';
+   const caption=document.createElement('span'); caption.textContent=file;
+   card.append(img,caption);
+   card.addEventListener('click',()=>window.loadStored360?.(file));
+   grid.appendChild(card);
+   img.addEventListener('error',()=>{caption.textContent=file+' · no encontrada';});
+  }
+  select.addEventListener('change',()=>{if(select.value)window.loadStored360?.(select.value)});
+  status.textContent=files.length+' fotografías · Pulsa una para verla en 360°';
+ } catch(error) {
+  console.error(error);
+  select.innerHTML='<option value="">Error al cargar la galería</option>';
+  status.textContent='Error en la galería: '+error.message;
+ }
+})();
 </script>
 </body>
 </html>
