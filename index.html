@@ -92,7 +92,7 @@ function init(){
   e.preventDefault();
   const nextDistance=getPinchDistance(e.touches);
   if(pinchDistance>0&&nextDistance>0){
-   camera.fov=THREE.MathUtils.clamp(camera.fov*(pinchDistance/nextDistance),25,100);
+   camera.fov=THREE.MathUtils.clamp(camera.fov*(pinchDistance/nextDistance),0.15,150);
    camera.updateProjectionMatrix();
   }
   pinchDistance=nextDistance;
@@ -106,7 +106,7 @@ function init(){
 }
 function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
 function drawFrame(){if(!renderer||!scene||!camera)return;renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.render(scene,camera)}
-window.addEventListener('wheel',e=>{if(!loaded)return;camera.fov=Math.max(35,Math.min(100,camera.fov+e.deltaY*.035));camera.updateProjectionMatrix()},{passive:true});
+window.addEventListener('wheel',e=>{if(!loaded)return;camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,0.15,150);camera.updateProjectionMatrix()},{passive:true});
 function animate(){renderer.setAnimationLoop(()=>{if(controls&&controls.enabled)controls.update();drawFrame()})}
 function showGallery(){welcome.classList.add('hidden');galleryPanel.classList.add('visible')}
 function showHome(){galleryPanel.classList.remove('visible');welcome.classList.remove('hidden')}
