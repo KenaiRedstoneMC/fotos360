@@ -23,7 +23,7 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 /* KENAI 360 — interfaz futurista */
 :root{color-scheme:dark}
 html,body{background:#030711;color:#eefcff}
-body:before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(rgba(0,225,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,225,255,.035) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,#000,transparent 88%)}
+
 #stage{background:radial-gradient(ellipse at 50% 45%,#10253a 0%,#030711 72%)}
 .top{z-index:8;background:linear-gradient(180deg,rgba(2,8,20,.94),rgba(2,8,20,.2));border-bottom:1px solid #00e5ff25;backdrop-filter:blur(12px)}
 .brand{color:#eaffff;text-shadow:0 0 18px #00d9ff70;letter-spacing:.16em}
@@ -56,7 +56,7 @@ p{color:#b5d3df}
 <body>
 <div id="stage"></div>
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver mis fotografías</button></div></div>
-<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="reset" disabled>Recentrar</button><button id="full" disabled>⛶</button></div></div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="reset" disabled>Recentrar</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button></div></div>
 <section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
@@ -69,7 +69,7 @@ const stage=document.getElementById('stage');
 const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.getElementById('galleryGrid');
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
 const reset=document.getElementById('reset'),full=document.getElementById('full');
-let renderer,scene,camera,controls,sphere,texture,loaded=false;
+let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',tinyCanvas=null;
 function init(){
  try {
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
@@ -117,6 +117,7 @@ document.getElementById('reset').addEventListener('click',()=>{
 });
 full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
 function loadImage(source,name){
+ currentFile=name;
  status.textContent='Cargando '+name+' en la esfera 3D…';
  if(!renderer||!scene||!camera){status.textContent='El visor 3D no se ha iniciado. Recarga la página.';return;}
  const loader=new THREE.TextureLoader();
@@ -139,10 +140,52 @@ function loadImage(source,name){
   const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
-  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;
+  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
   status.textContent=name+' · Panorama 360° · formato '+loadedTexture.image.width+'×'+loadedTexture.image.height;
  },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
+
+function applyEffect(mode){
+ if(!loaded||!renderer)return;
+ if(tinyCanvas){tinyCanvas.remove();tinyCanvas=null;}
+ renderer.domElement.style.display='block';renderer.domElement.style.filter='none';
+ camera.up.set(0,1,0);camera.position.set(0,0,.01);camera.fov=75;
+ if(mode==='fisheye')camera.fov=105;
+ if(mode==='cinema')renderer.domElement.style.filter='contrast(1.16) saturate(1.22) brightness(.94)';
+ if(mode==='bw')renderer.domElement.style.filter='grayscale(1) contrast(1.12)';
+ if(mode==='warm')renderer.domElement.style.filter='sepia(.28) saturate(1.35)';
+ if(mode==='cool')renderer.domElement.style.filter='saturate(.9) hue-rotate(12deg) contrast(1.08)';
+ if(mode==='tiny'||mode==='little')makePlanet(mode==='little');
+ camera.updateProjectionMatrix();if(controls){controls.reset();controls.target.set(0,0,0);controls.update();}
+ const labels={normal:'Vista panorámica 360°',tiny:'Tiny Planet · proyección estereográfica',little:'Little Planet invertido · proyección estereográfica',fisheye:'Ojo de pez · gran angular',cinema:'Efecto cinematográfico',bw:'Blanco y negro',warm:'Tono cálido',cool:'Tono frío'};
+ status.textContent=labels[mode]||'Efecto aplicado';
+}
+function makePlanet(inverted){
+ const source=texture.image,w=source.width,h=source.height,size=900;
+ const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ const src=document.createElement('canvas');src.width=w;src.height=h;
+ const sx=src.getContext('2d',{willReadFrequently:true});sx.drawImage(source,0,0,w,h);
+ const pixels=sx.getImageData(0,0,w,h).data,out=ctx.createImageData(size,size),d=out.data;
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const nx=(x-size/2)/(size/2),ny=(y-size/2)/(size/2),r2=nx*nx+ny*ny,i=(y*size+x)*4;
+  if(r2>1){d[i+3]=0;continue;}
+  const z=(1-r2)/(1+r2),k=2/(1+r2),dx=nx*k,dy=ny*k*(inverted?-1:1),dz=z*(inverted?-1:1);
+  const lon=Math.atan2(dx,dz),lat=Math.asin(Math.max(-1,Math.min(1,dy)));
+  const u=((lon/(Math.PI*2)+.5)%1+1)%1,v=Math.max(0,Math.min(1,.5-lat/Math.PI));
+  const px=Math.min(w-1,Math.floor(u*w)),py=Math.min(h-1,Math.floor(v*h)),p=(py*w+px)*4;
+  d[i]=pixels[p];d[i+1]=pixels[p+1];d[i+2]=pixels[p+2];d[i+3]=255;
+ }
+ ctx.putImageData(out,0,0);canvas.id='planetPreview';
+ canvas.style.cssText='position:fixed;z-index:6;inset:0;width:100%;height:100%;object-fit:contain;background:#030711;touch-action:pinch-zoom';
+ document.body.appendChild(canvas);tinyCanvas=canvas;renderer.domElement.style.display='none';
+}
+document.getElementById('effects').addEventListener('change',e=>applyEffect(e.target.value));
+document.getElementById('download').addEventListener('click',()=>{
+ if(!currentFile)return;const a=document.createElement('a');a.href='./fotos/'+encodeURIComponent(currentFile);a.download=currentFile;
+ document.body.appendChild(a);a.click();a.remove();
+});
+
 window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
 
 init();
