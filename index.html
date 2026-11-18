@@ -129,7 +129,7 @@ init();
  document.getElementById('toggleGallery').addEventListener('click',()=>panel.classList.toggle('visible'));
  select.hidden=false;
  try {
-  const response=await fetch('./fotos/lista.json? t='+Date.now(),{cache:'no-store'});
+  const response=await fetch('./fotos/lista.json?t='+Date.now(),{cache:'no-store'});
   if(!response.ok) throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data)) throw new Error('lista.json debe contener una lista JSON de nombres.');
