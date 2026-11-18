@@ -41,7 +41,7 @@ const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
 const reset=document.getElementById('reset'),full=document.getElementById('full'),vrToggle=document.getElementById('vrToggle'),vrExit=document.getElementById('vrExit');
 let renderer,scene,camera,controls,sphere,texture,objectUrl=null,loaded=false,vrMode=false;
-const stereoCamera=new THREE.StereoCamera();
+const stereoCamera=new THREE.StereoCamera();stereoCamera.aspect=0.5;
 const deviceEuler=new THREE.Euler(),deviceQuaternion=new THREE.Quaternion(),screenQuaternion=new THREE.Quaternion(),screenAxis=new THREE.Vector3(0,0,1);
 function init(){
  try {
