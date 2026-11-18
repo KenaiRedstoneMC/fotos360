@@ -33,7 +33,6 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { VRButton } from 'three/addons/webxr/VRButton.js';
 
 const stage=document.getElementById('stage'),input=document.getElementById('file'),gallery=document.getElementById('gallery');
 const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.getElementById('galleryGrid');
@@ -41,13 +40,15 @@ const welcome=document.getElementById('welcome'),status=document.getElementById(
 const reset=document.getElementById('reset'),full=document.getElementById('full');
 let renderer,scene,camera,controls,sphere,texture,objectUrl=null,loaded=false;
 function init(){
+ try {
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
  camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1100);
  camera.position.set(0,0,0.01);
  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,2.5));renderer.setSize(innerWidth,innerHeight);
  renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.xr.enabled=true;stage.appendChild(renderer.domElement);
- const vrButton=VRButton.createButton(renderer);vrButton.id='vrButton';document.body.appendChild(vrButton);
+ const vrButton=document.createElement('button');vrButton.id='vrButton';vrButton.textContent='🥽 ENTER VR';document.body.appendChild(vrButton);
+ vrButton.addEventListener('click',async()=>{try{if(!navigator.xr){status.textContent='Este navegador no ofrece WebXR';return;}const supported=await navigator.xr.isSessionSupported('immersive-vr');if(!supported){status.textContent='Este dispositivo/navegador no admite VR inmersiva';return;}const session=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']});await renderer.xr.setSession(session);}catch(error){console.error(error);status.textContent='No se pudo iniciar VR: '+(error.message||error);}});
  renderer.xr.addEventListener('sessionstart',()=>{controls.enabled=false;status.textContent='Modo VR activado · mueve la cabeza para mirar'});
  renderer.xr.addEventListener('sessionend',()=>{controls.enabled=true;status.textContent='Modo normal · arrastra para mirar'});
  controls=new OrbitControls(camera,renderer.domElement);
@@ -56,6 +57,7 @@ function init(){
  controls.enableZoom=false;controls.enablePan=false;
  window.addEventListener('resize',resize);
  animate();
+ } catch(error) { console.error(error); status.textContent='Error al iniciar el visor 3D: '+(error.message||error); }
 }
 function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
 window.addEventListener('wheel',e=>{if(!loaded)return;camera.fov=Math.max(35,Math.min(100,camera.fov+e.deltaY*.035));camera.updateProjectionMatrix()},{passive:true});
@@ -69,6 +71,7 @@ document.getElementById('reset').addEventListener('click',()=>{
 full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
 function loadImage(source,name){
  status.textContent='Cargando '+name+' en la esfera 3D…';
+ if(!renderer||!scene||!camera){status.textContent='El visor 3D no se ha iniciado. Recarga la página.';return;}
  const loader=new THREE.TextureLoader();
  loader.load(source,(loadedTexture)=>{
   if(texture)texture.dispose();texture=loadedTexture;
@@ -91,7 +94,7 @@ function loadImage(source,name){
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
   loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;
   status.textContent=name+' · Panorama 360° · formato '+loadedTexture.image.width+'×'+loadedTexture.image.height;
- },undefined,(err)=>{console.error(err);status.textContent='Error al cargar '+name+'. Revisa la conexión o el formato JPG.'});
+ },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
 input.addEventListener('change',()=>{
  const file=input.files?.[0];if(!file)return;
