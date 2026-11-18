@@ -17,7 +17,7 @@
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
 #galleryPanel{position:fixed;z-index:6;left:0;right:0;bottom:0;height:126px;overflow-x:auto;overflow-y:hidden;padding:12px 14px max(12px,env(safe-area-inset-bottom));background:linear-gradient(transparent,#050705 18%,#050705f2);display:none}#galleryPanel.visible{display:block}#galleryGrid{display:flex;gap:10px;width:max-content;min-width:100%;align-items:center}.photoCard{flex:0 0 132px;width:132px;border:1px solid #ffffff35;background:#101810;border-radius:9px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer}.photoCard:hover{border-color:#a4f43b}.photoCard img{display:block;width:100%;height:72px;object-fit:cover}.photoCard span{display:block;padding:6px 7px;font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:12px;font-size:.85rem}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
-@media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{height:112px}.photoCard{flex-basis:112px;width:112px}.photoCard img{height:62px}}
+@media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{height:112px}.photoCard{flex-basis:112px;width:112px}.photoCard img{height:62px}}\n#vrButton{position:fixed!important;z-index:12!important;left:50%!important;right:auto!important;bottom:max(18px,env(safe-area-inset-bottom))!important;top:auto!important;transform:translateX(-50%);border:1px solid #a4f43b!important;border-radius:999px!important;background:#101810ed!important;color:#fff!important;padding:11px 20px!important;font:700 13px system-ui,Arial!important;letter-spacing:.04em;cursor:pointer}body:has(#vrButton){--vr-ready:1}
 </style>
 </head>
 <body>
@@ -31,7 +31,7 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 </script>
 <script type="module">
 import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';\nimport { VRButton } from 'three/addons/webxr/VRButton.js';
 const stage=document.getElementById('stage'),input=document.getElementById('file'),gallery=document.getElementById('gallery');
 const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.getElementById('galleryGrid');
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
@@ -53,7 +53,7 @@ function init(){
 }
 function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
 window.addEventListener('wheel',e=>{if(!loaded)return;camera.fov=Math.max(35,Math.min(100,camera.fov+e.deltaY*.035));camera.updateProjectionMatrix()},{passive:true});
-function animate(){requestAnimationFrame(animate);if(controls)controls.update();if(renderer&&scene&&camera)renderer.render(scene,camera)}
+function animate(){renderer.setAnimationLoop(()=>{if(controls)controls.update();if(renderer&&scene&&camera)renderer.render(scene,camera)})}
 function openPicker(){input.click()}
 document.getElementById('choose').addEventListener('click',openPicker);
 document.getElementById('open').addEventListener('click',openPicker);
