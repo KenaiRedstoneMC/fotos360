@@ -182,8 +182,28 @@ function makePlanet(inverted){
 }
 document.getElementById('effects').addEventListener('change',e=>applyEffect(e.target.value));
 document.getElementById('download').addEventListener('click',()=>{
- if(!currentFile)return;const a=document.createElement('a');a.href='./fotos/'+encodeURIComponent(currentFile);a.download=currentFile;
+ if(!loaded||!currentFile)return;
+ const mode=document.getElementById('effects').value;
+ let sourceCanvas=tinyCanvas;
+ if(!sourceCanvas){
+  renderer.render(scene,camera);
+  sourceCanvas=renderer.domElement;
+ }
+ const output=document.createElement('canvas');
+ output.width=sourceCanvas.width;output.height=sourceCanvas.height;
+ const ctx=output.getContext('2d');
+ ctx.fillStyle='#030711';ctx.fillRect(0,0,output.width,output.height);
+ if(!tinyCanvas){
+  const filter=getComputedStyle(renderer.domElement).filter;
+  ctx.filter=filter&&filter!=='none'?filter:'none';
+ }
+ ctx.drawImage(sourceCanvas,0,0,output.width,output.height);
+ const a=document.createElement('a');
+ const base=currentFile.replace(/\\.jpe?g$/i,'');
+ a.download=base+'_'+mode+'_KENAI360.png';
+ a.href=output.toDataURL('image/png');
  document.body.appendChild(a);a.click();a.remove();
+ status.textContent='Descargando la vista actual: '+mode;
 });
 
 window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
