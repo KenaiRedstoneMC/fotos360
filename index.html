@@ -46,7 +46,7 @@ function init(){
  camera.position.set(0,0,0.01);
  renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,2.5));renderer.setSize(innerWidth,innerHeight);
- renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.xr.enabled=true;stage.appendChild(renderer.domElement);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.xr.enabled=false;stage.appendChild(renderer.domElement);
  const vrButton=document.createElement('button');vrButton.id='vrButton';vrButton.textContent='🥽 ENTER VR';document.body.appendChild(vrButton);
  vrButton.addEventListener('click',async()=>{try{if(!navigator.xr){status.textContent='Este navegador no ofrece WebXR';return;}const supported=await navigator.xr.isSessionSupported('immersive-vr');if(!supported){status.textContent='Este dispositivo/navegador no admite VR inmersiva';return;}const session=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor','bounded-floor']});await renderer.xr.setSession(session);}catch(error){console.error(error);status.textContent='No se pudo iniciar VR: '+(error.message||error);}});
  renderer.xr.addEventListener('sessionstart',()=>{controls.enabled=false;status.textContent='Modo VR activado · mueve la cabeza para mirar'});
