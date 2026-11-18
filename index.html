@@ -18,13 +18,45 @@ p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color
 #galleryPanel{position:fixed;z-index:7;inset:76px 18px 58px;overflow:auto;padding:20px;background:#0a100deF;border:1px solid #ffffff24;border-radius:18px;backdrop-filter:blur(16px);display:none}#galleryPanel.visible{display:block}.galleryHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.galleryHeading h2{font-size:1.15rem;margin:0}.galleryHeading small{color:#aeb9ae}#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.photoCard{width:100%;border:1px solid #ffffff25;background:#111b13;border-radius:13px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer;transition:transform .18s,border-color .18s}.photoCard:hover,.photoCard:focus-visible{border-color:#a4f43b;transform:translateY(-3px);outline:none}.photoCard img{display:block;width:100%;height:145px;object-fit:cover;background:#050705}.photoCard span{display:block;padding:10px 12px;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:24px;font-size:.9rem}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
 \n@media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{inset:64px 8px 48px;padding:13px}#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.photoCard img{height:112px}.photoCard span{font-size:.72rem;padding:8px}}
+
+/* KENAI 360 — interfaz futurista */
+:root{color-scheme:dark}
+html,body{background:#030711;color:#eefcff}
+body:before{content:"";position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(rgba(0,225,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(0,225,255,.035) 1px,transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom,#000,transparent 88%)}
+#stage{background:radial-gradient(ellipse at 50% 45%,#10253a 0%,#030711 72%)}
+.top{z-index:8;background:linear-gradient(180deg,rgba(2,8,20,.94),rgba(2,8,20,.2));border-bottom:1px solid #00e5ff25;backdrop-filter:blur(12px)}
+.brand{color:#eaffff;text-shadow:0 0 18px #00d9ff70;letter-spacing:.16em}
+.brand span,.logo span{color:#00f0c8;text-shadow:0 0 18px #00f0c8a0}
+button{border:1px solid #00d9ff55;background:linear-gradient(145deg,#10283aee,#07111fee);box-shadow:inset 0 1px #ffffff12,0 7px 22px #0008;color:#e8fbff;transition:transform .2s,border-color .2s,box-shadow .2s}
+button:hover,select:hover{border-color:#00f0c8;color:#00f0c8;box-shadow:0 0 18px #00e5ff35,inset 0 0 14px #00e5ff12;transform:translateY(-2px)}
+#welcome{z-index:4;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#12354a 0%,#071321 42%,#030711 78%)}
+#welcome:before,#welcome:after{content:"";position:absolute;width:min(70vw,540px);aspect-ratio:1;border:1px solid #00e5ff35;border-radius:50%;box-shadow:0 0 35px #00e5ff18,inset 0 0 35px #00e5ff12;transform:rotateX(68deg);animation:orbit 18s linear infinite;pointer-events:none}
+#welcome:after{width:min(52vw,390px);border-color:#00f0c855;transform:rotateX(68deg) rotateZ(55deg);animation-direction:reverse}
+@keyframes orbit{to{rotate:0 0 1 360deg}}
+.content{position:relative;z-index:1;padding:38px 32px;border:1px solid #00e5ff45;border-radius:26px;background:linear-gradient(145deg,#10283bc9,#06101bd9);box-shadow:0 25px 90px #000b,0 0 45px #00d9ff18,inset 0 1px #ffffff20;backdrop-filter:blur(18px)}
+.logo{font-size:clamp(3rem,11vw,5.5rem);letter-spacing:-.08em;text-shadow:0 10px 35px #000,0 0 24px #00d9ff35}
+p{color:#b5d3df}
+#choose{background:linear-gradient(110deg,#00f0c8,#00baff);color:#03111a;border:0;box-shadow:0 0 28px #00d9ff55,0 8px 25px #0008}
+#galleryPanel{z-index:9;background:linear-gradient(145deg,rgba(7,20,34,.97),rgba(3,9,19,.97));border:1px solid #00d9ff55;border-radius:22px;box-shadow:0 25px 90px #000c,0 0 35px #00d9ff18,inset 0 1px #ffffff16;perspective:1200px}
+.galleryHeading{padding-bottom:14px;border-bottom:1px solid #00d9ff35}
+.galleryHeading h2{color:#eaffff;letter-spacing:.04em;text-shadow:0 0 15px #00d9ff35}
+.galleryHeading small{color:#80b6c7}
+#galleryGrid{gap:17px;perspective:1200px}
+.photoCard{position:relative;border:1px solid #1c7180;background:linear-gradient(145deg,#102b3c,#07121f);border-radius:15px;box-shadow:0 12px 25px #0008,inset 0 1px #ffffff16;transform-style:preserve-3d;transition:transform .25s,border-color .25s,box-shadow .25s}
+.photoCard:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(135deg,#00e5ff12,transparent 45%,#00f0c812)}
+.photoCard:hover,.photoCard:focus-visible{border-color:#00f0c8;transform:translateY(-7px) rotateX(3deg) rotateY(-2deg);box-shadow:0 22px 35px #000a,0 0 24px #00d9ff35}
+.photoCard img{height:155px;object-fit:cover;filter:saturate(1.12) contrast(1.04);border-bottom:1px solid #00d9ff35}
+.photoCard span{position:relative;z-index:1;color:#dffaff;font-size:.8rem;letter-spacing:.025em}
+#status{z-index:8;background:rgba(3,13,25,.82);border:1px solid #00d9ff55;color:#bafaff;box-shadow:0 0 18px #00d9ff20;backdrop-filter:blur(12px)}
+@media(max-width:600px){.content{padding:30px 20px}.photoCard img{height:118px}}
+
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver mis fotografías</button></div></div>
 <div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="reset" disabled>Recentrar</button><button id="full" disabled>⛶</button></div></div>
-<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Elige una imagen para abrirla en el visor</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
+<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
@@ -129,13 +161,13 @@ init();
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
-  const files=[...new Set(data.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))];
+  // El orden del JSON es el orden cronológico de subida a GitHub; no ordenar alfabéticamente.\n  const files=[...new Set(data.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))];
   count.textContent=files.length+' fotos';
   if(!files.length){grid.innerHTML='<div class="emptyGallery">Todavía no hay fotografías.</div>';return;}
   for(const file of files){
    const card=document.createElement('button');card.className='photoCard';card.type='button';card.title='Ver '+file;
    const img=document.createElement('img');img.src='./fotos/'+encodeURIComponent(file);img.alt='Vista previa de '+file;img.loading='lazy';
-   const caption=document.createElement('span');caption.textContent=file;
+   const caption=document.createElement('span');caption.textContent=String(files.indexOf(file)+1).padStart(2,'0')+'  /  '+file;
    card.append(img,caption);
    card.addEventListener('click',()=>{window.loadStored360?.(file);});
    img.addEventListener('error',()=>{img.alt='Vista previa no disponible';caption.textContent=file+' · imagen no encontrada';});
