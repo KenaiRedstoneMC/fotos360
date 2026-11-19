@@ -146,6 +146,10 @@ button:disabled{opacity:.35}
 }
 
 
+
+/* Evitar que el aviso de estado tape el botón de entrada en la pantalla inicial */
+#welcome:not(.hidden) ~ #status{display:none!important}
+
 /* Barra de controles separada de la cabecera y anclada al borde inferior */
 .top{z-index:30;pointer-events:none}
 .brand{pointer-events:auto}
