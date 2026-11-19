@@ -491,6 +491,11 @@ function makePlanet(inverted){
  canvas.addEventListener('pointermove',e=>{if(planetDrag!==e.pointerId)return;planetRotation+=(e.clientX-planetLastX)*.45;planetLastX=e.clientX;planetLastY=e.clientY;updatePlanetTransform();});
  const endPlanetDrag=e=>{if(planetDrag===e.pointerId)planetDrag=null;canvas.style.cursor='grab';};
  canvas.addEventListener('pointerup',endPlanetDrag);canvas.addEventListener('pointercancel',endPlanetDrag);
+ let planetPinch=0;
+ const planetTouchDistance=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+ canvas.addEventListener('touchstart',e=>{if(e.touches.length===2)planetPinch=planetTouchDistance(e.touches);},{passive:true});
+ canvas.addEventListener('touchmove',e=>{if(e.touches.length!==2||!planetPinch)return;e.preventDefault();const d=planetTouchDistance(e.touches);if(d>0){planetScale=THREE.MathUtils.clamp(planetScale*d/planetPinch,.25,12);updatePlanetTransform();}planetPinch=d;},{passive:false});
+ const clearPlanetPinch=()=>{planetPinch=0;};canvas.addEventListener('touchend',clearPlanetPinch,{passive:true});canvas.addEventListener('touchcancel',clearPlanetPinch,{passive:true});
  document.body.appendChild(canvas);tinyCanvas=canvas;renderer.domElement.style.display='none';updatePlanetTransform();
 }
 document.getElementById('effects').addEventListener('change',e=>applyEffect(e.target.value));
