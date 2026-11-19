@@ -172,15 +172,17 @@ full.addEventListener('click',()=>{if(!document.fullscreenElement)document.docum
 async function enterCardboard(){
  if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
  try{
+  // Iniciar pantalla completa directamente desde el toque del usuario.
+  const fullscreenAttempt=(!document.fullscreenElement&&document.documentElement.requestFullscreen)
+   ? document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(e=>{console.warn('Pantalla completa no disponible',e);})
+   : Promise.resolve();
   // iOS exige permiso de movimiento solicitado desde un toque del usuario.
   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
    const permission=await DeviceOrientationEvent.requestPermission();
    if(permission!=='granted')throw new Error('Permiso de movimiento denegado. Actívalo en los ajustes del navegador.');
   }
   if(!('DeviceOrientationEvent' in window))throw new Error('Este navegador no ofrece sensor de orientación.');
-  if(document.documentElement.requestFullscreen&&!document.fullscreenElement){
-   try{await document.documentElement.requestFullscreen({navigationUI:'hide'});}catch(e){console.warn('Pantalla completa no disponible',e);}
-  }
+  await fullscreenAttempt;
   screenAngle=window.screen?.orientation?.angle??window.orientation??0;
   window.addEventListener('deviceorientation',onDeviceOrientation,true);
   window.screen?.orientation?.addEventListener?.('change',onScreenOrientation);
