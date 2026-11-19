@@ -189,18 +189,19 @@ function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHei
 function drawFrame(){
  if(!renderer||!scene||!camera)return;
  if(!vrMode){renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.render(scene,camera);return;}
- const half=Math.floor(renderer.domElement.width/2),height=renderer.domElement.height;
- const aspect=(innerWidth/2)/innerHeight;
+ // Three.js recibe coordenadas lógicas; el renderer aplica internamente el pixel ratio.
+ const width=innerWidth,height=innerHeight,half=Math.floor(width/2),rightWidth=width-half;
+ const aspect=(half/height);
  const baseFov=camera.fov;
- leftEye.fov=baseFov;rightEye.fov=baseFov;leftEye.aspect=aspect;rightEye.aspect=aspect;
- leftEye.near= camera.near;leftEye.far=camera.far;rightEye.near=camera.near;rightEye.far=camera.far;
+ leftEye.fov=baseFov;rightEye.fov=baseFov;leftEye.aspect=aspect;rightEye.aspect=rightWidth/height;
+ leftEye.near=camera.near;leftEye.far=camera.far;rightEye.near=camera.near;rightEye.far=camera.far;
  leftEye.position.copy(camera.position);rightEye.position.copy(camera.position);
  leftEye.quaternion.copy(camera.quaternion);rightEye.quaternion.copy(camera.quaternion);
  leftEye.translateX(-0.032);rightEye.translateX(0.032);
  leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
  renderer.setScissorTest(true);
  renderer.setViewport(0,0,half,height);renderer.setScissor(0,0,half,height);renderer.render(scene,leftEye);
- renderer.setViewport(half,0,renderer.domElement.width-half,height);renderer.setScissor(half,0,renderer.domElement.width-half,height);renderer.render(scene,rightEye);
+ renderer.setViewport(half,0,rightWidth,height);renderer.setScissor(half,0,rightWidth,height);renderer.render(scene,rightEye);
  renderer.setScissorTest(false);
 }
 window.addEventListener('wheel',e=>{if(!loaded)return;camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,0.15,150);camera.updateProjectionMatrix()},{passive:true});
@@ -285,7 +286,12 @@ function exitCardboard(){
  status.textContent='Modo Cardboard desactivado';
 }
 vrButton.addEventListener('click',enterCardboard);vrExit.addEventListener('click',exitCardboard);
-document.addEventListener('fullscreenchange',()=>{if(vrMode&&!document.fullscreenElement)exitCardboard();});
+// No salir automáticamente de Cardboard si el navegador abandona fullscreen al rotar el móvil.
+document.addEventListener('fullscreenchange',()=>{
+ if(vrMode&&!document.fullscreenElement){
+  status.textContent='Cardboard sigue activo · pantalla completa no disponible';
+ }
+});
 // En ordenador: clic para capturar el ratón y mirar libremente; también funciona arrastrando.
 document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement!==lookCanvas())dragPointer=null;});
 document.addEventListener('mousemove',e=>{
