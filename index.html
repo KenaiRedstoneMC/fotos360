@@ -282,12 +282,11 @@ function drawFrame(){
  const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
  renderer.setScissorTest(false);
  if(!vrMode){renderer.setViewport(0,0,width,height);renderer.render(scene,camera);return;}
- const gap=Math.min(24,Math.max(12,Math.round(width*.018)));
- const usableWidth=Math.max(2,width-gap),half=Math.floor(usableWidth/2),rightWidth=usableWidth-half;
- const rightStart=half+gap;
- // Foto 360 monoscópica: misma imagen en ambos ojos, con una franja oscura
- // central para separar claramente las dos vistas del visor.
- leftEye.fov=rightEye.fov=camera.fov;
+ // Cardboard: dos vistas contiguas, sin separación negra. Cada ojo muestra
+ // la misma panorámica centrada y con un campo de visión más amplio para verla algo más pequeña.
+ const half=Math.floor(width/2),rightWidth=width-half;
+ const eyeFov=Math.min(150,camera.fov*1.25);
+ leftEye.fov=rightEye.fov=eyeFov;
  leftEye.aspect=half/height;rightEye.aspect=rightWidth/height;
  leftEye.near=rightEye.near=camera.near;leftEye.far=rightEye.far=camera.far;
  leftEye.position.copy(camera.position);rightEye.position.copy(camera.position);
@@ -295,12 +294,7 @@ function drawFrame(){
  leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
  renderer.setScissorTest(true);
  renderer.setViewport(0,0,half,height);renderer.setScissor(0,0,half,height);renderer.render(scene,leftEye);
- renderer.setViewport(half,0,gap,height);renderer.setScissor(half,0,gap,height);
- const previousClearColor=renderer.getClearColor(new THREE.Color()).clone();
- const previousClearAlpha=renderer.getClearAlpha();
- renderer.setClearColor(0x000000,1);renderer.clear(true,true,true);
- renderer.setClearColor(previousClearColor,previousClearAlpha);
- renderer.setViewport(rightStart,0,rightWidth,height);renderer.setScissor(rightStart,0,rightWidth,height);renderer.render(scene,rightEye);
+ renderer.setViewport(half,0,rightWidth,height);renderer.setScissor(half,0,rightWidth,height);renderer.render(scene,rightEye);
  renderer.setScissorTest(false);
 }
 window.addEventListener('wheel',e=>{if(!loaded)return;if(flatCanvas){flatScale=THREE.MathUtils.clamp(flatScale*Math.exp(-e.deltaY*.0015),.2,10);updateFlatTransform();}else if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
