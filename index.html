@@ -184,6 +184,16 @@ body.vr-mode #vrExit{display:block}
 
 /* Ocultar mensajes emergentes que permanecían sobre la fotografía */
 #status{display:none!important}
+
+/* Cardboard estilo YouTube: dos ventanas circulares para las lentes */
+body.vr-mode #stage::after{
+ content:"";position:fixed;inset:0;z-index:4;pointer-events:none;background:#000;
+ -webkit-mask-image:radial-gradient(circle 42vmin at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(circle 42vmin at 75% 50%,transparent 0 99%,#000 100%);
+ -webkit-mask-composite:source-in;
+ mask-image:radial-gradient(circle 42vmin at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(circle 42vmin at 75% 50%,transparent 0 99%,#000 100%);
+ mask-composite:intersect;
+}
+body.vr-mode #stage canvas{width:100vw;height:100dvh}
 </style>
 </head>
 <body>
