@@ -74,7 +74,10 @@ const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
 const reset=document.getElementById('reset'),full=document.getElementById('full');
 const rotateLeft=document.getElementById('rotateLeft'),rotateRight=document.getElementById('rotateRight');
-let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',tinyCanvas=null;\nlet vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false;\nconst vrButton=document.getElementById("vr"),vrExit=document.getElementById("vrExit");\nconst leftEye=new THREE.PerspectiveCamera(),rightEye=new THREE.PerspectiveCamera();
+let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',tinyCanvas=null;
+let vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false;
+const vrButton=document.getElementById("vr"),vrExit=document.getElementById("vrExit");
+const leftEye=new THREE.PerspectiveCamera(),rightEye=new THREE.PerspectiveCamera();
 function init(){
  try {
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
