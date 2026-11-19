@@ -183,16 +183,29 @@ function init(){
  canvas.addEventListener('touchend',clearPinch,{passive:true});
  canvas.addEventListener('touchcancel',clearPinch,{passive:true});
  window.addEventListener('resize',resize);
+ window.addEventListener('orientationchange',()=>{setTimeout(resize,180);setTimeout(resize,650);});
+ window.visualViewport?.addEventListener('resize',resize);
  animate();
  } catch(error) { console.error(error); status.textContent='Error al iniciar el visor 3D: '+(error.message||error); }
 }
-function resize(){if(!camera||!renderer)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)}
+function resize(){
+ if(!camera||!renderer)return;
+ const width=Math.max(1,window.innerWidth),height=Math.max(1,window.innerHeight);
+ camera.aspect=width/height;camera.updateProjectionMatrix();
+ renderer.setSize(width,height,false);
+ if(renderer.domElement){
+  renderer.domElement.style.width='100vw';
+  renderer.domElement.style.height='100dvh';
+ }
+}
 function drawFrame(){
  if(!renderer||!scene||!camera)return;
  if(!vrMode){renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.render(scene,camera);return;}
  // Three.js recibe coordenadas lógicas; el renderer aplica internamente el pixel ratio.
- const width=innerWidth,height=innerHeight,half=Math.floor(width/2),rightWidth=width-half;
- const aspect=(half/height);
+ const width=Math.max(1,renderer.domElement.clientWidth||innerWidth);
+ const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
+ const half=Math.floor(width/2),rightWidth=width-half;
+ const aspect=half/height;
  const baseFov=camera.fov;
  leftEye.fov=baseFov;rightEye.fov=baseFov;leftEye.aspect=aspect;rightEye.aspect=rightWidth/height;
  leftEye.near=camera.near;leftEye.far=camera.far;rightEye.near=camera.near;rightEye.far=camera.far;
@@ -239,6 +252,13 @@ async function enterCardboard(){
    catch(permissionError){permissionGranted=false;console.warn('Permiso del sensor no concedido',permissionError);}
   }
   await fullscreenAttempt;
+  // En Android/Chrome, bloquear horizontal al entrar en Cardboard.
+  // En iOS u otros navegadores que no lo permiten, se mantiene el modo VR sin bloquear.
+  try{
+   if(document.fullscreenElement&&screen.orientation?.lock){
+    await screen.orientation.lock('landscape');
+   }
+  }catch(orientationError){console.info('El navegador no permite bloquear la orientación',orientationError);}
   screenAngle=window.screen?.orientation?.angle??window.orientation??0;
   sensorActive=false;deviceOrientation=null;
   if(permissionGranted&&'DeviceOrientationEvent' in window){
@@ -281,6 +301,7 @@ function exitCardboard(){
  window.removeEventListener('deviceorientation',onDeviceOrientation,true);
  window.screen?.orientation?.removeEventListener?.('change',onScreenOrientation);
  if(document.pointerLockElement)document.exitPointerLock?.();
+ try{screen.orientation?.unlock?.();}catch(e){}
  dragPointer=null;
  document.body.classList.remove('vr-mode');controls.enabled=true;controls.reset();camera.position.set(0,0,.01);
  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
