@@ -55,6 +55,55 @@ p{color:#b5d3df}
 #status{z-index:8;background:rgba(3,13,25,.82);border:1px solid #00d9ff55;color:#bafaff;box-shadow:0 0 18px #00d9ff20;backdrop-filter:blur(12px)}
 @media(max-width:600px){.content{padding:30px 20px}.photoCard img{height:118px}#effects{max-width:105px;padding:7px 6px;font-size:.65rem}.actions{flex-wrap:wrap;justify-content:flex-end;max-width:76vw}#download{font-size:.65rem}}
 
+
+/* Meta Quest 3 inspired home interface */
+:root{color-scheme:dark}
+html,body{background:#101116;color:#f7f7fa}
+#stage{background:radial-gradient(ellipse at 50% 45%,#34364a 0%,#1c1d29 48%,#101116 100%)}
+.top{position:fixed;inset:0 0 auto;display:block;padding:max(18px,env(safe-area-inset-top)) 22px;background:linear-gradient(180deg,rgba(12,13,19,.5),transparent);border:0;backdrop-filter:none;pointer-events:none}
+.brand{position:relative;display:inline-block;color:#fff;font-size:.82rem;letter-spacing:.09em;text-shadow:0 2px 12px #0008;pointer-events:auto}
+.brand span,.logo span{color:#c7c9ff;text-shadow:0 0 20px #a6aaff55}
+.actions{position:fixed;z-index:12;left:50%;top:auto;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;width:max-content;max-width:calc(100vw - 24px);padding:10px 12px;border:1px solid #ffffff20;border-radius:26px;background:rgba(35,37,49,.78);box-shadow:0 14px 44px #0008,inset 0 1px #ffffff18;backdrop-filter:blur(28px);pointer-events:auto}
+button,select{border:1px solid #ffffff1c;background:rgba(255,255,255,.075);color:#f5f5fa;border-radius:16px;box-shadow:none;backdrop-filter:blur(16px);transition:background .18s,border-color .18s,transform .18s}
+button:hover,select:hover{background:rgba(174,177,255,.2);border-color:#b7baff;color:#fff;box-shadow:0 5px 18px #0003;transform:translateY(-2px)}
+button:disabled{opacity:.32}
+#welcome{background:radial-gradient(ellipse at 50% 35%,#55566d 0%,#292b3b 34%,#171821 68%,#101116 100%);overflow:hidden}
+#welcome:before,#welcome:after{width:min(76vw,720px);border:1px solid #ffffff12;box-shadow:0 0 80px #aeb1ff10,inset 0 0 70px #ffffff08}
+#welcome:after{width:min(54vw,500px);border-color:#c9caff18}
+.content{max-width:560px;padding:clamp(30px,5vw,52px);border:1px solid #ffffff24;border-radius:30px;background:linear-gradient(145deg,rgba(65,67,84,.78),rgba(32,34,47,.82));box-shadow:0 30px 100px #0007,inset 0 1px #ffffff20;backdrop-filter:blur(32px)}
+.logo{font-size:clamp(3.2rem,10vw,5.5rem);letter-spacing:-.08em;text-shadow:0 8px 30px #0005}
+.content p{color:#e0e0eb;font-size:1rem}
+#choose{border:0;border-radius:999px;padding:14px 28px;background:#d7d8ff;color:#171824;font-size:.95rem;box-shadow:0 6px 22px #0003}
+#choose:hover{background:#fff;color:#171824}
+.videoLink{border:1px solid #ffffff25;border-radius:999px;background:#ffffff0d;color:#f2f2ff;box-shadow:none}
+.videoLink:hover{background:#ffffff18;color:#fff;border-color:#c6c8ff;box-shadow:none}
+#galleryPanel{inset:88px 4vw 112px;padding:clamp(16px,2.4vw,28px);border:1px solid #ffffff20;border-radius:28px;background:rgba(28,29,41,.84);box-shadow:0 24px 80px #0008;backdrop-filter:blur(30px)}
+.galleryHeading{padding:2px 2px 18px;border-bottom:1px solid #ffffff12}
+.galleryHeading h2{font-size:1.35rem;letter-spacing:-.025em;color:#fff;text-shadow:none}
+.galleryHeading small{color:#bfc0d0}
+#galleryGrid{gap:16px}
+.photoCard{border:1px solid #ffffff16;border-radius:21px;background:linear-gradient(145deg,#3a3c50,#292b3a);box-shadow:0 8px 24px #0003,inset 0 1px #ffffff16;overflow:hidden}
+.photoCard:after{background:linear-gradient(135deg,#ffffff0b,transparent 55%)}
+.photoCard:hover,.photoCard:focus-visible{border-color:#c3c5ff;background:#45475d;box-shadow:0 14px 30px #0005,0 0 0 1px #c3c5ff22;transform:translateY(-4px)}
+.photoCard img{height:160px;border-bottom:1px solid #ffffff12;filter:saturate(1.04)}
+.photoCard span{padding:12px 14px;color:#f4f4fa;font-size:.82rem}
+#status{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 78px);background:rgba(34,35,48,.78);border:1px solid #ffffff1b;color:#eeeeF7;box-shadow:0 8px 28px #0005;backdrop-filter:blur(22px)}
+#vrExit{background:rgba(37,38,54,.94);border:1px solid #d1d2ff;color:#fff;box-shadow:0 8px 28px #0008}
+body.vr-mode .top,body.vr-mode #status{display:none!important}
+@media(max-width:700px){
+ .top{padding:14px 14px}
+ .brand{font-size:.7rem}
+ .actions{gap:5px;padding:8px;bottom:max(10px,env(safe-area-inset-bottom));border-radius:22px}
+ .actions button{padding:8px 10px;font-size:.68rem;border-radius:13px}
+ .actions select{max-width:112px;padding:8px 7px;font-size:.65rem;border-radius:13px}
+ #galleryPanel{inset:64px 8px 126px;padding:13px;border-radius:22px}
+ #galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .photoCard img{height:112px}
+ .photoCard span{font-size:.7rem;padding:9px}
+ #status{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 100px);font-size:.66rem}
+ .content{padding:30px 20px;border-radius:26px}
+}
+
 </style>
 </head>
 <body>
