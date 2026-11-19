@@ -58,8 +58,8 @@ p{color:#b5d3df}
 <body>
 <div id="stage"></div>
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
-<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button></div></div>
-<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para mirar · Pellizca o usa la rueda para zoom</div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button></div></div>
+<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
@@ -71,6 +71,7 @@ const stage=document.getElementById('stage');
 const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.getElementById('galleryGrid');
 const welcome=document.getElementById('welcome'),status=document.getElementById('status');
 const reset=document.getElementById('reset'),full=document.getElementById('full');
+const rotateLeft=document.getElementById('rotateLeft'),rotateRight=document.getElementById('rotateRight');
 let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',tinyCanvas=null;
 function init(){
  try {
@@ -115,6 +116,13 @@ function showHome(){galleryPanel.classList.remove('visible');welcome.classList.r
 document.getElementById('choose').addEventListener('click',showGallery);
 document.getElementById('home').addEventListener('click',showHome);
 document.getElementById('videos').addEventListener('click',()=>window.open('https://www.youtube.com/playlist?list=PLSdpbsob1cec','_blank','noopener,noreferrer'));
+rotateLeft.addEventListener('click',()=>rotatePanorama(-Math.PI/2));
+rotateRight.addEventListener('click',()=>rotatePanorama(Math.PI/2));
+function rotatePanorama(angle){
+ if(!sphere)return;
+ sphere.rotation.y+=angle;
+ status.textContent=angle<0?'Panorámica girada 90° a la izquierda':'Panorámica girada 90° a la derecha';
+}
 document.getElementById('reset').addEventListener('click',()=>{
  if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);controls.update()}
 });
@@ -142,8 +150,8 @@ function loadImage(source,name){
   geometry.scale(-1,1,1);
   const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
-  controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;camera.updateProjectionMatrix();controls.update();
-  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;full.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
+  controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;sphere.rotation.set(0,0,0);camera.updateProjectionMatrix();controls.update();
+  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
   status.textContent=name+' · Panorama 360° · formato '+loadedTexture.image.width+'×'+loadedTexture.image.height;
  },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
