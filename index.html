@@ -487,7 +487,7 @@ function loadImage(source,name){
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;sphere.rotation.set(0,0,0);camera.updateProjectionMatrix();controls.update();
   loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;document.getElementById('flatMode').disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;vrButton.disabled=false;motionButton.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
-  status.textContent=name+' · Panorama 360° · formato '+loadedTexture.image.width+'×'+loadedTexture.image.height;
+  status.textContent='Fotografía 360° cargada';
  },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
 
