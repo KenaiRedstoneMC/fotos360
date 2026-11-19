@@ -214,7 +214,8 @@ function init(){
   e.preventDefault();
   const nextDistance=getPinchDistance(e.touches);
   if(pinchDistance>0&&nextDistance>0){
-   camera.fov=THREE.MathUtils.clamp(camera.fov*(pinchDistance/nextDistance),0.15,150);
+   if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*(nextDistance/pinchDistance),.25,12);updatePlanetTransform();}
+   else{camera.fov=THREE.MathUtils.clamp(camera.fov*(pinchDistance/nextDistance),.05,170);camera.updateProjectionMatrix();}
    camera.updateProjectionMatrix();
   }
   pinchDistance=nextDistance;
@@ -262,7 +263,7 @@ function drawFrame(){
  renderer.setViewport(half,0,rightWidth,height);renderer.setScissor(half,0,rightWidth,height);renderer.render(scene,rightEye);
  renderer.setScissorTest(false);
 }
-window.addEventListener('wheel',e=>{if(!loaded)return;camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,0.15,150);camera.updateProjectionMatrix()},{passive:true});
+window.addEventListener('wheel',e=>{if(!loaded)return;if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
 function animate(){renderer.setAnimationLoop(()=>{if(controls&&controls.enabled)controls.update();drawFrame()})}
 function showGallery(){welcome.classList.add('hidden');galleryPanel.classList.add('visible')}
 function showHome(){galleryPanel.classList.remove('visible');welcome.classList.remove('hidden')}
@@ -272,12 +273,16 @@ document.getElementById('videos').addEventListener('click',()=>window.open('http
 rotateLeft.addEventListener('click',()=>rotatePanorama(-Math.PI/2));
 rotateRight.addEventListener('click',()=>rotatePanorama(Math.PI/2));
 function rotatePanorama(angle){
- if(!sphere)return;
- sphere.rotation.y+=angle;
+ if(tinyCanvas){
+  planetRotation+=angle*180/Math.PI;
+  updatePlanetTransform();
+ }else if(sphere){sphere.rotation.y+=angle;}
  status.textContent=angle<0?'Panorámica girada 90° a la izquierda':'Panorámica girada 90° a la derecha';
 }
 document.getElementById('reset').addEventListener('click',()=>{
- if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);controls.update()}
+ if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);camera.fov=75;camera.updateProjectionMatrix();controls.update()}
+ if(sphere)sphere.rotation.set(0,0,0);
+ planetScale=1;planetRotation=0;updatePlanetTransform();
 });
 full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
 let sensorActive=false,motionMode=false,mouseYaw=0,mousePitch=0,dragPointer=null,lastPointerX=0,lastPointerY=0;
@@ -444,9 +449,14 @@ function loadImage(source,name){
  },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
 
+let planetScale=1,planetRotation=0,planetDrag=null,planetLastX=0,planetLastY=0;
+function updatePlanetTransform(){
+ if(tinyCanvas)tinyCanvas.style.transform='translate(-50%,-50%) scale('+planetScale+') rotate('+planetRotation+'deg)';
+}
 function applyEffect(mode){
  if(!loaded||!renderer)return;
  if(tinyCanvas){tinyCanvas.remove();tinyCanvas=null;}
+ planetScale=1;planetRotation=0;
  renderer.domElement.style.display='block';renderer.domElement.style.filter='none';
  camera.up.set(0,1,0);camera.position.set(0,0,.01);camera.fov=75;
  if(mode==='fisheye')camera.fov=105;
@@ -476,8 +486,12 @@ function makePlanet(inverted){
   d[i]=pixels[p];d[i+1]=pixels[p+1];d[i+2]=pixels[p+2];d[i+3]=255;
  }
  ctx.putImageData(out,0,0);canvas.id='planetPreview';
- canvas.style.cssText='position:fixed;z-index:6;inset:0;width:100%;height:100%;object-fit:contain;background:#030711;touch-action:pinch-zoom';
- document.body.appendChild(canvas);tinyCanvas=canvas;renderer.domElement.style.display='none';
+ canvas.style.cssText='position:fixed;z-index:6;left:50%;top:50%;width:min(92vmin,900px);height:min(92vmin,900px);object-fit:contain;background:transparent;touch-action:none;transform-origin:center center;cursor:grab;user-select:none';
+ canvas.addEventListener('pointerdown',e=>{planetDrag=e.pointerId;planetLastX=e.clientX;planetLastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);canvas.style.cursor='grabbing';});
+ canvas.addEventListener('pointermove',e=>{if(planetDrag!==e.pointerId)return;planetRotation+=(e.clientX-planetLastX)*.45;planetLastX=e.clientX;planetLastY=e.clientY;updatePlanetTransform();});
+ const endPlanetDrag=e=>{if(planetDrag===e.pointerId)planetDrag=null;canvas.style.cursor='grab';};
+ canvas.addEventListener('pointerup',endPlanetDrag);canvas.addEventListener('pointercancel',endPlanetDrag);
+ document.body.appendChild(canvas);tinyCanvas=canvas;renderer.domElement.style.display='none';updatePlanetTransform();
 }
 document.getElementById('effects').addEventListener('change',e=>applyEffect(e.target.value));
 document.getElementById('download').addEventListener('click',()=>{
