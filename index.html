@@ -185,13 +185,15 @@ body.vr-mode #vrExit{display:block}
 /* Ocultar mensajes emergentes que permanecían sobre la fotografía */
 #status{display:none!important}
 
-/* Máscara Cardboard: lentes anchas con lados casi rectos, como YouTube VR */
-body.vr-mode #stage::after{
- content:"";position:fixed;inset:0;z-index:4;pointer-events:none;background:#000;
- -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201000%201000'%3E%3Cmask%20id%3D'm'%3E%3Crect%20width%3D'1000'%20height%3D'1000'%20fill%3D'white'%2F%3E%3Cpath%20fill%3D'black'%20d%3D'M145%20150%20Q300%2085%20455%20150%20Q480%20165%20480%20205%20L480%20795%20Q480%20835%20455%20850%20Q300%20915%20145%20850%20Q120%20835%20120%20795%20L120%20205%20Q120%20165%20145%20150%20Z'%2F%3E%3Cpath%20fill%3D'black'%20d%3D'M545%20150%20Q700%2085%20855%20150%20Q880%20165%20880%20205%20L880%20795%20Q880%20835%20855%20850%20Q700%20915%20545%20850%20Q520%20835%20520%20795%20L520%20205%20Q520%20165%20545%20150%20Z'%2F%3E%3C%2Fmask%3E%3Crect%20width%3D'1000'%20height%3D'1000'%20fill%3D'white'%20mask%3D'url(%2523m)'%2F%3E%3C%2Fsvg%3E");
- mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%201000%201000'%3E%3Cmask%20id%3D'm'%3E%3Crect%20width%3D'1000'%20height%3D'1000'%20fill%3D'white'%2F%3E%3Cpath%20fill%3D'black'%20d%3D'M145%20150%20Q300%2085%20455%20150%20Q480%20165%20480%20205%20L480%20795%20Q480%20835%20455%20850%20Q300%20915%20145%20850%20Q120%20835%20120%20795%20L120%20205%20Q120%20165%20145%20150%20Z'%2F%3E%3Cpath%20fill%3D'black'%20d%3D'M545%20150%20Q700%2085%20855%20150%20Q880%20165%20880%20205%20L880%20795%20Q880%20835%20855%20850%20Q700%20915%20545%20850%20Q520%20835%20520%20795%20L520%20205%20Q520%20165%20545%20150%20Z'%2F%3E%3C%2Fmask%3E%3Crect%20width%3D'1000'%20height%3D'1000'%20fill%3D'white'%20mask%3D'url(%2523m)'%2F%3E%3C%2Fsvg%3E");
- -webkit-mask-size:100% 100%;mask-size:100% 100%;
- -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+/* Recorte Cardboard: dos ventanas panorámicas, solo en móviles */
+body.vr-mode #stage::after{content:none}
+@media (pointer:coarse) and (orientation:landscape){
+ body.vr-mode #stage::after{
+  content:"";display:block;position:fixed;inset:0;z-index:4;pointer-events:none;background:#000;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H1000V1000H0Z%20M120%20145%20Q300%2065%20480%20145%20Q495%20155%20495%20205%20L495%20795%20Q495%20845%20480%20855%20Q300%20935%20120%20855%20Q105%20845%20105%20795%20L105%20205%20Q105%20155%20120%20145Z%20M520%20145%20Q700%2065%20880%20145%20Q895%20155%20895%20205%20L895%20795%20Q895%20845%20880%20855%20Q700%20935%20520%20855%20Q505%20845%20505%20795%20L505%20205%20Q505%20155%20520%20145Z%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H1000V1000H0Z%20M120%20145%20Q300%2065%20480%20145%20Q495%20155%20495%20205%20L495%20795%20Q495%20845%20480%20855%20Q300%20935%20120%20855%20Q105%20845%20105%20795%20L105%20205%20Q105%20155%20120%20145Z%20M520%20145%20Q700%2065%20880%20145%20Q895%20155%20895%20205%20L895%20795%20Q895%20845%20880%20855%20Q700%20935%20520%20855%20Q505%20845%20505%20795%20L505%20205%20Q505%20155%20520%20145Z%22%2F%3E%3C%2Fsvg%3E");
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ }
 }
 body.vr-mode #stage::before{content:none!important}
 body.vr-mode #stage canvas{width:100vw;height:100dvh}
