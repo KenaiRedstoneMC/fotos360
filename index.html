@@ -211,7 +211,11 @@ function drawFrame(){
  leftEye.near=camera.near;leftEye.far=camera.far;rightEye.near=camera.near;rightEye.far=camera.far;
  leftEye.position.copy(camera.position);rightEye.position.copy(camera.position);
  leftEye.quaternion.copy(camera.quaternion);rightEye.quaternion.copy(camera.quaternion);
- leftEye.translateX(-0.032);rightEye.translateX(0.032);
+ // Separación visual ajustada para Cardboard: pequeña divergencia horizontal entre ojos.
+ // La panorámica es monoscópica, así que esto solo desplaza ligeramente el encuadre.
+ const eyeAngle=THREE.MathUtils.degToRad(0.7);
+ leftEye.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),eyeAngle));
+ rightEye.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-eyeAngle));
  leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
  renderer.setScissorTest(true);
  renderer.setViewport(0,0,half,height);renderer.setScissor(0,0,half,height);renderer.render(scene,leftEye);
