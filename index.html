@@ -221,49 +221,95 @@ document.getElementById('reset').addEventListener('click',()=>{
  if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);controls.update()}
 });
 full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
+let sensorActive=false,mouseYaw=0,mousePitch=0,dragPointer=null,lastPointerX=0,lastPointerY=0;
+const lookCanvas=()=>renderer?.domElement;
 async function enterCardboard(){
  if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
  try{
-  // Iniciar pantalla completa directamente desde el toque del usuario.
+  // La pantalla completa se solicita desde el gesto del usuario, pero no es obligatoria.
   const fullscreenAttempt=(!document.fullscreenElement&&document.documentElement.requestFullscreen)
    ? document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(e=>{console.warn('Pantalla completa no disponible',e);})
    : Promise.resolve();
-  // iOS exige permiso de movimiento solicitado desde un toque del usuario.
+  let permissionGranted=true;
+  // En Safari iOS el permiso del giroscopio debe pedirse directamente al tocar el botón.
   if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
-   const permission=await DeviceOrientationEvent.requestPermission();
-   if(permission!=='granted')throw new Error('Permiso de movimiento denegado. Actívalo en los ajustes del navegador.');
+   try{permissionGranted=(await DeviceOrientationEvent.requestPermission())==='granted';}
+   catch(permissionError){permissionGranted=false;console.warn('Permiso del sensor no concedido',permissionError);}
   }
-  if(!('DeviceOrientationEvent' in window))throw new Error('Este navegador no ofrece sensor de orientación.');
   await fullscreenAttempt;
   screenAngle=window.screen?.orientation?.angle??window.orientation??0;
-  window.addEventListener('deviceorientation',onDeviceOrientation,true);
-  window.screen?.orientation?.addEventListener?.('change',onScreenOrientation);
-  vrPermissionGranted=true;vrMode=true;controls.enabled=false;
+  sensorActive=false;deviceOrientation=null;
+  if(permissionGranted&&'DeviceOrientationEvent' in window){
+   window.addEventListener('deviceorientation',onDeviceOrientation,true);
+   window.screen?.orientation?.addEventListener?.('change',onScreenOrientation);
+  }
+  mouseYaw=0;mousePitch=0;
+  vrMode=true;controls.enabled=false;
   document.body.classList.add('vr-mode');
-  status.textContent='Cardboard VR activo · mueve el móvil para mirar alrededor';
- }catch(error){console.error(error);status.textContent=error.message||'No se pudo activar el modo VR.';}
+  status.textContent=permissionGranted
+   ? 'Cardboard activo · mueve el móvil o arrastra para mirar'
+   : 'Cardboard activo · sensor no disponible: arrastra con el dedo';
+ }catch(error){console.error(error);status.textContent='No se pudo activar Cardboard: '+(error.message||error);}
 }
 function onDeviceOrientation(event){
  if(event.alpha==null||event.beta==null||event.gamma==null)return;
- deviceOrientation={alpha:THREE.MathUtils.degToRad(event.alpha),beta:THREE.MathUtils.degToRad(event.beta),gamma:THREE.MathUtils.degToRad(event.gamma)};
- const euler=new THREE.Euler(deviceOrientation.beta,deviceOrientation.alpha,-deviceOrientation.gamma,'YXZ');
- const orient=THREE.MathUtils.degToRad(-(window.screen?.orientation?.angle??window.orientation??0));
+ sensorActive=true;
+ const euler=new THREE.Euler(
+  THREE.MathUtils.degToRad(event.beta),
+  THREE.MathUtils.degToRad(event.alpha),
+  -THREE.MathUtils.degToRad(event.gamma),
+  'YXZ'
+ );
  const q=new THREE.Quaternion().setFromEuler(euler);
+ // Corrección de cámara usada por los controles de orientación de Three.js.
  q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));
- q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),orient));
+ const angle=THREE.MathUtils.degToRad(-(window.screen?.orientation?.angle??window.orientation??0));
+ q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));
  camera.quaternion.copy(q);
 }
 function onScreenOrientation(){screenAngle=window.screen?.orientation?.angle??window.orientation??0;}
+function updateMouseLook(dx,dy){
+ mouseYaw-=dx*.0025;
+ mousePitch=THREE.MathUtils.clamp(mousePitch-dy*.0025,-Math.PI/2+.02,Math.PI/2-.02);
+ camera.quaternion.setFromEuler(new THREE.Euler(mousePitch,mouseYaw,0,'YXZ'));
+}
 function exitCardboard(){
  if(!vrMode)return;
- vrMode=false;window.removeEventListener('deviceorientation',onDeviceOrientation,true);
+ vrMode=false;sensorActive=false;
+ window.removeEventListener('deviceorientation',onDeviceOrientation,true);
  window.screen?.orientation?.removeEventListener?.('change',onScreenOrientation);
+ if(document.pointerLockElement)document.exitPointerLock?.();
+ dragPointer=null;
  document.body.classList.remove('vr-mode');controls.enabled=true;controls.reset();camera.position.set(0,0,.01);
  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
  status.textContent='Modo Cardboard desactivado';
 }
 vrButton.addEventListener('click',enterCardboard);vrExit.addEventListener('click',exitCardboard);
 document.addEventListener('fullscreenchange',()=>{if(vrMode&&!document.fullscreenElement)exitCardboard();});
+// En ordenador: clic para capturar el ratón y mirar libremente; también funciona arrastrando.
+document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement!==lookCanvas())dragPointer=null;});
+document.addEventListener('mousemove',e=>{
+ if(!vrMode||sensorActive)return;
+ if(document.pointerLockElement===lookCanvas())updateMouseLook(e.movementX,e.movementY);
+});
+document.addEventListener('pointerdown',e=>{
+ if(!vrMode||sensorActive||e.target===vrExit)return;
+ if(e.pointerType==='mouse'){
+  if(e.button!==0)return;
+  dragPointer=e.pointerId;lastPointerX=e.clientX;lastPointerY=e.clientY;
+  lookCanvas()?.requestPointerLock?.();
+ }else{
+  dragPointer=e.pointerId;lastPointerX=e.clientX;lastPointerY=e.clientY;
+ }
+});
+document.addEventListener('pointermove',e=>{
+ if(!vrMode||sensorActive||dragPointer!==e.pointerId||document.pointerLockElement===lookCanvas())return;
+ updateMouseLook(e.clientX-lastPointerX,e.clientY-lastPointerY);
+ lastPointerX=e.clientX;lastPointerY=e.clientY;
+});
+const releaseLook=()=>{dragPointer=null;};
+document.addEventListener('pointerup',releaseLook);
+document.addEventListener('pointercancel',releaseLook);
 function loadImage(source,name){
  currentFile=name;
  status.textContent='Cargando '+name+' en la esfera 3D…';
