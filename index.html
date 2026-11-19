@@ -146,61 +146,41 @@ button:disabled{opacity:.35}
 }
 
 
-/* Barra de controles accesible: fija abajo y por encima del visor */
+/* Barra de controles separada de la cabecera y anclada al borde inferior */
 .top{z-index:30;pointer-events:none}
 .brand{pointer-events:auto}
 .actions{
- position:fixed!important;
- z-index:40!important;
- top:auto!important;
- bottom:max(18px,env(safe-area-inset-bottom))!important;
- left:50%!important;
- right:auto!important;
- transform:translateX(-50%)!important;
- display:flex!important;
- flex-direction:row;
- flex-wrap:wrap;
- align-items:center;
- justify-content:center;
- gap:8px;
- width:max-content;
- max-width:calc(100vw - 24px);
- max-height: min(34vh,220px);
- overflow-y:auto;
- overflow-x:hidden;
- padding:10px 12px;
- border:1px solid #269cff88;
- border-radius:22px;
- background:rgba(3,18,38,.96);
- box-shadow:0 12px 38px #000b,0 0 25px #087dff35;
- backdrop-filter:blur(18px);
- pointer-events:auto!important;
+ position:fixed!important;z-index:50!important;
+ top:auto!important;bottom:max(12px,env(safe-area-inset-bottom))!important;
+ left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+ display:flex!important;flex-direction:row;flex-wrap:wrap;
+ align-items:center;justify-content:center;gap:7px;
+ width:max-content;max-width:calc(100vw - 24px);
+ max-height:min(30vh,210px);overflow-y:auto;overflow-x:hidden;
+ padding:9px 11px;border:1px solid #269cff88;border-radius:20px;
+ background:rgba(3,18,38,.97);box-shadow:0 12px 38px #000b,0 0 25px #087dff35;
+ backdrop-filter:blur(18px);pointer-events:auto!important;
 }
-.actions button,.actions select{position:relative;z-index:41;pointer-events:auto;touch-action:manipulation}
-#status{z-index:25;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 94px)}
-#stage, #stage canvas{z-index:0}
-#planetPreview{z-index:6!important;pointer-events:auto}
+.actions button,.actions select{position:relative;z-index:51;pointer-events:auto;touch-action:manipulation}
+#status{z-index:25;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 34vh)}
+#stage,#stage canvas{z-index:0}
+#planetPreview,#flatPreview{z-index:6!important;pointer-events:auto}
 @media(max-width:700px){
- .actions{
-  bottom:max(8px,env(safe-area-inset-bottom))!important;
-  max-width:calc(100vw - 14px);
-  max-height:32vh;
-  gap:5px;
-  padding:7px;
-  border-radius:18px;
- }
+ .actions{bottom:max(8px,env(safe-area-inset-bottom))!important;max-width:calc(100vw - 12px);max-height:28vh;gap:5px;padding:7px;border-radius:17px}
  .actions button{padding:8px 9px;font-size:.68rem}
  .actions select{max-width:112px;padding:8px 7px;font-size:.65rem}
- #status{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 35vh)}
+ #status{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 30vh);font-size:.66rem}
 }
 body.vr-mode .actions,body.vr-mode .brand{display:none!important}
+body.vr-mode #vrExit{display:block}
+
 
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
-<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard VR">🥽 VR</button></div></div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard VR">🥽 VR</button></div>
 <section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
@@ -215,7 +195,7 @@ const welcome=document.getElementById('welcome'),status=document.getElementById(
 const reset=document.getElementById('reset'),full=document.getElementById('full');
 const rotateLeft=document.getElementById('rotateLeft'),rotateRight=document.getElementById('rotateRight');
 let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',tinyCanvas=null,flatCanvas=null,flatScale=1,flatRotation=0,flatDrag=null,flatLastX=0;
-let vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false;
+let vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false,preVrFov=75;
 const vrButton=document.getElementById("vr"),vrExit=document.getElementById("vrExit");
 const leftEye=new THREE.PerspectiveCamera(),rightEye=new THREE.PerspectiveCamera();
 function init(){
@@ -291,22 +271,17 @@ function resize(){
 }
 function drawFrame(){
  if(!renderer||!scene||!camera)return;
- if(!vrMode){renderer.setScissorTest(false);renderer.setViewport(0,0,innerWidth,innerHeight);renderer.render(scene,camera);return;}
- // Three.js recibe coordenadas lógicas; el renderer aplica internamente el pixel ratio.
  const width=Math.max(1,renderer.domElement.clientWidth||innerWidth);
  const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
+ renderer.setScissorTest(false);
+ if(!vrMode){renderer.setViewport(0,0,width,height);renderer.render(scene,camera);return;}
  const half=Math.floor(width/2),rightWidth=width-half;
- const aspect=half/height;
- const baseFov=camera.fov;
- leftEye.fov=baseFov;rightEye.fov=baseFov;leftEye.aspect=aspect;rightEye.aspect=rightWidth/height;
- leftEye.near=camera.near;leftEye.far=camera.far;rightEye.near=camera.near;rightEye.far=camera.far;
+ // Foto 360 monoscópica: misma imagen en ambos ojos, sin desplazamiento artificial.
+ leftEye.fov=rightEye.fov=camera.fov;
+ leftEye.aspect=half/height;rightEye.aspect=rightWidth/height;
+ leftEye.near=rightEye.near=camera.near;leftEye.far=rightEye.far=camera.far;
  leftEye.position.copy(camera.position);rightEye.position.copy(camera.position);
  leftEye.quaternion.copy(camera.quaternion);rightEye.quaternion.copy(camera.quaternion);
- // Separación visual ajustada para Cardboard: pequeña divergencia horizontal entre ojos.
- // La panorámica es monoscópica, así que esto solo desplaza ligeramente el encuadre.
- const eyeAngle=THREE.MathUtils.degToRad(0.7);
- leftEye.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),eyeAngle));
- rightEye.quaternion.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-eyeAngle));
  leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
  renderer.setScissorTest(true);
  renderer.setViewport(0,0,half,height);renderer.setScissor(0,0,half,height);renderer.render(scene,leftEye);
@@ -400,6 +375,7 @@ async function enterCardboard(){
    window.screen?.orientation?.addEventListener?.('change',onScreenOrientation);
   }
   mouseYaw=0;mousePitch=0;
+  preVrFov=camera.fov;camera.fov=90;camera.updateProjectionMatrix();
   vrMode=true;controls.enabled=false;
   document.body.classList.add('vr-mode');
   status.textContent=permissionGranted
@@ -437,7 +413,7 @@ function exitCardboard(){
  if(document.pointerLockElement)document.exitPointerLock?.();
  try{screen.orientation?.unlock?.();}catch(e){}
  dragPointer=null;
- document.body.classList.remove('vr-mode');controls.enabled=true;controls.reset();camera.position.set(0,0,.01);
+ document.body.classList.remove('vr-mode');camera.fov=preVrFov;camera.updateProjectionMatrix();controls.enabled=true;controls.reset();camera.position.set(0,0,.01);
  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
  status.textContent='Modo Cardboard desactivado';
 }
