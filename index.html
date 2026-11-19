@@ -145,6 +145,56 @@ button:disabled{opacity:.35}
  #galleryPanel{background:rgba(4,19,38,.97)}
 }
 
+
+/* Barra de controles accesible: fija abajo y por encima del visor */
+.top{z-index:30;pointer-events:none}
+.brand{pointer-events:auto}
+.actions{
+ position:fixed!important;
+ z-index:40!important;
+ top:auto!important;
+ bottom:max(18px,env(safe-area-inset-bottom))!important;
+ left:50%!important;
+ right:auto!important;
+ transform:translateX(-50%)!important;
+ display:flex!important;
+ flex-direction:row;
+ flex-wrap:wrap;
+ align-items:center;
+ justify-content:center;
+ gap:8px;
+ width:max-content;
+ max-width:calc(100vw - 24px);
+ max-height: min(34vh,220px);
+ overflow-y:auto;
+ overflow-x:hidden;
+ padding:10px 12px;
+ border:1px solid #269cff88;
+ border-radius:22px;
+ background:rgba(3,18,38,.96);
+ box-shadow:0 12px 38px #000b,0 0 25px #087dff35;
+ backdrop-filter:blur(18px);
+ pointer-events:auto!important;
+}
+.actions button,.actions select{position:relative;z-index:41;pointer-events:auto;touch-action:manipulation}
+#status{z-index:25;bottom:calc(max(18px,env(safe-area-inset-bottom)) + 94px)}
+#stage, #stage canvas{z-index:0}
+#planetPreview{z-index:6!important;pointer-events:auto}
+@media(max-width:700px){
+ .actions{
+  bottom:max(8px,env(safe-area-inset-bottom))!important;
+  max-width:calc(100vw - 14px);
+  max-height:32vh;
+  gap:5px;
+  padding:7px;
+  border-radius:18px;
+ }
+ .actions button{padding:8px 9px;font-size:.68rem}
+ .actions select{max-width:112px;padding:8px 7px;font-size:.65rem}
+ #status{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 35vh)}
+}
+body.vr-mode .actions,body.vr-mode .brand{display:none!important}
+
 </style>
 </head>
 <body>
