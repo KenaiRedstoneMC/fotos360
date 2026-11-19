@@ -105,6 +105,46 @@ body.vr-mode .top,body.vr-mode #status{display:none!important}
 }
 
 
+
+/* Tema futurista azul para inicio, menús y galería */
+:root{color-scheme:dark}
+html,body{background:#030914;color:#eaf7ff}
+#stage{background:radial-gradient(ellipse at 50% 42%,#12365c 0%,#07182d 52%,#020711 100%)}
+.top{background:linear-gradient(180deg,rgba(2,10,24,.96),rgba(3,14,30,.28));border-bottom:1px solid #168bff55;backdrop-filter:blur(18px)}
+.brand{color:#eaf7ff;text-shadow:0 0 18px #168bff88;letter-spacing:.17em}
+.brand span,.logo span{color:#39c5ff;text-shadow:0 0 20px #168bffb0}
+.actions{border:1px solid #269cff55;background:linear-gradient(135deg,rgba(8,35,65,.94),rgba(4,16,34,.94));box-shadow:0 12px 38px #000a,0 0 24px #087dff22,inset 0 1px #8bd8ff25}
+button,select{border:1px solid #268fff66;background:linear-gradient(145deg,rgba(15,54,91,.96),rgba(5,24,48,.98));color:#e8f7ff;box-shadow:inset 0 1px #ffffff18,0 5px 18px #0007;transition:all .2s}
+button:hover,select:hover{border-color:#53d5ff;color:#fff;background:linear-gradient(145deg,#1262a0,#08345f);box-shadow:0 0 18px #168bff70,inset 0 0 12px #46c9ff22;transform:translateY(-2px)}
+button:disabled{opacity:.35}
+#welcome{background:radial-gradient(ellipse at 50% 38%,#14518a 0%,#0a2545 35%,#041326 70%,#020711 100%)}
+#welcome:before,#welcome:after{border-color:#28baff55;box-shadow:0 0 48px #168bff30,inset 0 0 48px #168bff20}
+#welcome:after{border-color:#54dfff66}
+.content{position:relative;border:1px solid #3bbdff66;border-radius:28px;background:linear-gradient(145deg,rgba(12,54,91,.9),rgba(4,19,41,.94));box-shadow:0 28px 90px #000b,0 0 55px #087dff35,inset 0 1px #b8eaff28;backdrop-filter:blur(22px)}
+.content:before{content:"";position:absolute;inset:9px;border:1px solid #5bcfff20;border-radius:21px;pointer-events:none}
+.logo{text-shadow:0 0 26px #168bff88,0 8px 30px #0008}
+.content p{color:#c5e6ff}
+#choose{background:linear-gradient(105deg,#36d5ff,#168bff);color:#021426;border:0;box-shadow:0 0 28px #168bff88,0 7px 22px #0008}
+#choose:hover{background:linear-gradient(105deg,#9beaff,#48aaff);color:#021426}
+.videoLink{border:1px solid #39bfff88;background:rgba(7,43,77,.78);color:#d9f5ff;box-shadow:0 0 18px #168bff25}
+.videoLink:hover{border-color:#8ae7ff;color:#fff;background:#10518a}
+#galleryPanel{border:1px solid #258fff70;background:linear-gradient(145deg,rgba(5,25,48,.97),rgba(3,12,27,.98));box-shadow:0 25px 90px #000c,0 0 38px #087dff24,inset 0 1px #b8eaff18}
+.galleryHeading{border-bottom:1px solid #238bdf55}
+.galleryHeading h2{color:#eaf8ff;text-shadow:0 0 16px #168bff55}
+.galleryHeading small{color:#8fc9ee}
+.photoCard{border:1px solid #258fff55;background:linear-gradient(145deg,#10365c,#071a32);box-shadow:0 12px 28px #0008,inset 0 1px #b8eaff18}
+.photoCard:after{background:linear-gradient(135deg,#38cfff18,transparent 55%,#167bff16)}
+.photoCard:hover,.photoCard:focus-visible{border-color:#65ddff;box-shadow:0 16px 34px #000a,0 0 22px #168bff50}
+.photoCard img{border-bottom:1px solid #258fff55}
+.photoCard span{color:#e2f5ff}
+#status{background:rgba(3,20,40,.88);border:1px solid #268fff66;color:#d8f3ff;box-shadow:0 0 18px #087dff25;backdrop-filter:blur(16px)}
+#vrExit{background:linear-gradient(145deg,#104b7a,#061d39);border:1px solid #51cfff;color:#fff;box-shadow:0 0 22px #168bff55}
+@media(max-width:700px){
+ .actions{border-radius:20px}
+ .content{padding:30px 20px}
+ #galleryPanel{background:rgba(4,19,38,.97)}
+}
+
 </style>
 </head>
 <body>
