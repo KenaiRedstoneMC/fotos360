@@ -188,12 +188,14 @@ body.vr-mode #vrExit{display:block}
 /* Cardboard estilo YouTube: dos ventanas circulares para las lentes */
 body.vr-mode #stage::after{
  content:"";position:fixed;inset:0;z-index:4;pointer-events:none;background:#000;
- -webkit-mask-image:radial-gradient(circle min(48vmin, 23.5vw) at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(circle min(48vmin, 23.5vw) at 75% 50%,transparent 0 99%,#000 100%);
+ -webkit-mask-image:radial-gradient(ellipse 18vw 42vh at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(ellipse 18vw 42vh at 75% 50%,transparent 0 99%,#000 100%);
  -webkit-mask-composite:source-in;
- mask-image:radial-gradient(circle min(48vmin, 23.5vw) at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(circle min(48vmin, 23.5vw) at 75% 50%,transparent 0 99%,#000 100%);
+ mask-image:radial-gradient(ellipse 18vw 42vh at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(ellipse 18vw 42vh at 75% 50%,transparent 0 99%,#000 100%);
  mask-composite:intersect;
 }
 body.vr-mode #stage canvas{width:100vw;height:100dvh}
+
+body.vr-mode #stage::before{content:"";position:fixed;z-index:5;pointer-events:none;left:calc(50% - 1px);top:65%;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,#fff 20%,#fff 100%);opacity:.8}
 </style>
 </head>
 <body>
