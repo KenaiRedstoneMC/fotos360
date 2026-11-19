@@ -104,6 +104,83 @@ body.vr-mode .top,body.vr-mode #status{display:none!important}
  .content{padding:30px 20px;border-radius:26px}
 }
 
+
+/* Meta Quest-inspired UI: neutral, soft and spatial; remove the cyber/neon look */
+html,body{background:#17181d;color:#f5f5f7}
+#stage{background:#17181d}
+.top{
+ z-index:8;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;
+ padding:max(12px,env(safe-area-inset-top)) 18px 12px;
+ background:rgba(28,29,35,.88);border-bottom:1px solid #ffffff18;
+ backdrop-filter:blur(24px);box-shadow:0 5px 24px #0003;pointer-events:auto
+}
+.brand{font-size:.9rem;letter-spacing:.015em;color:#f5f5f7;text-shadow:none}
+.brand span,.logo span{color:#d5d6ff;text-shadow:none}
+.actions{
+ position:fixed;z-index:12;left:50%;top:auto;bottom:max(18px,env(safe-area-inset-bottom));
+ transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:7px;
+ flex-wrap:wrap;width:max-content;max-width:calc(100vw - 28px);padding:10px 12px;
+ border:1px solid #ffffff20;border-radius:20px;background:rgba(39,40,47,.92);
+ box-shadow:0 12px 38px #0006,inset 0 1px #ffffff12;backdrop-filter:blur(28px)
+}
+button,select{
+ border:1px solid #ffffff16;background:#45464f;color:#f5f5f7;border-radius:12px;
+ box-shadow:none;backdrop-filter:blur(12px);transition:background .16s,border-color .16s
+}
+button:hover,select:hover{background:#5a5b68;border-color:#bfc1ff;color:#fff;box-shadow:none;transform:none}
+button:disabled{opacity:.38}
+#welcome{
+ background:radial-gradient(ellipse at 50% 35%,#454651 0%,#292a32 48%,#191a20 100%)
+}
+#welcome:before,#welcome:after{display:none}
+.content{
+ max-width:540px;padding:clamp(28px,5vw,48px);border:1px solid #ffffff20;border-radius:24px;
+ background:rgba(43,44,52,.9);box-shadow:0 22px 70px #0006,inset 0 1px #ffffff12;
+ backdrop-filter:blur(28px)
+}
+.logo{font-size:clamp(3rem,10vw,5rem);letter-spacing:-.07em;text-shadow:none}
+.content p{color:#d4d5dc}
+#choose{background:#c9caff;color:#20212a;border:0;border-radius:999px;padding:13px 25px;box-shadow:none}
+#choose:hover{background:#e0e0ff;color:#171820}
+.videoLink{border:1px solid #ffffff20;border-radius:999px;background:#ffffff0d;color:#f1f1f7;box-shadow:none}
+.videoLink:hover{background:#ffffff18;color:#fff;border-color:#c9caff;box-shadow:none;transform:none}
+#galleryPanel{
+ inset:78px 4vw 108px;padding:clamp(16px,2.4vw,26px);
+ border:1px solid #ffffff1c;border-radius:24px;background:rgba(34,35,42,.94);
+ box-shadow:0 22px 70px #0007;backdrop-filter:blur(28px)
+}
+.galleryHeading{border-bottom:1px solid #ffffff16}
+.galleryHeading h2{color:#fff;text-shadow:none}
+.galleryHeading small{color:#c1c2cb}
+.photoCard{
+ border:1px solid #ffffff18;border-radius:16px;background:#41424b;
+ box-shadow:0 7px 20px #0003,inset 0 1px #ffffff0c
+}
+.photoCard:after{display:none}
+.photoCard:hover,.photoCard:focus-visible{
+ border-color:#c9caff;background:#50515d;box-shadow:0 10px 24px #0004;transform:translateY(-2px)
+}
+.photoCard img{border-bottom:1px solid #ffffff14;filter:none}
+.photoCard span{color:#f4f4f7}
+#status{
+ background:rgba(35,36,43,.9);border:1px solid #ffffff1c;color:#eeeeF3;
+ box-shadow:0 7px 24px #0005;backdrop-filter:blur(22px)
+}
+#vrExit{background:rgba(40,41,49,.96);border:1px solid #c9caff;color:#fff;box-shadow:0 7px 24px #0006}
+body.vr-mode .top,body.vr-mode #status{display:none!important}
+@media(max-width:700px){
+ .top{padding:12px 12px;min-height:52px}
+ .brand{font-size:.72rem}
+ .actions{gap:5px;padding:8px;bottom:max(10px,env(safe-area-inset-bottom));border-radius:17px}
+ .actions button{padding:8px 10px;font-size:.68rem;border-radius:11px}
+ .actions select{max-width:112px;padding:8px 7px;font-size:.65rem;border-radius:11px}
+ #galleryPanel{inset:62px 8px 118px;padding:13px;border-radius:19px}
+ #galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .photoCard img{height:112px}
+ .photoCard span{font-size:.7rem;padding:9px}
+ #status{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 96px);font-size:.66rem}
+ .content{padding:28px 20px;border-radius:22px}
+}
 </style>
 </head>
 <body>
