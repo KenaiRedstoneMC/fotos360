@@ -185,16 +185,13 @@ body.vr-mode #vrExit{display:block}
 /* Ocultar mensajes emergentes que permanecían sobre la fotografía */
 #status{display:none!important}
 
-/* Cardboard estilo YouTube: dos ventanas circulares para las lentes */
+/* Visor Cardboard: dos lentes separadas y recortadas como YouTube VR */
 body.vr-mode #stage::after{
  content:"";position:fixed;inset:0;z-index:4;pointer-events:none;background:#000;
- -webkit-mask-image:radial-gradient(ellipse 18vw 42vh at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(ellipse 18vw 42vh at 75% 50%,transparent 0 99%,#000 100%);
- -webkit-mask-composite:source-in;
- mask-image:radial-gradient(ellipse 18vw 42vh at 25% 50%,transparent 0 99%,#000 100%),radial-gradient(ellipse 18vw 42vh at 75% 50%,transparent 0 99%,#000 100%);
- mask-composite:intersect;
+ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cmask id='m'%3E%3Crect width='1000' height='1000' fill='white'/%3E%3Cellipse cx='300' cy='500' rx='180' ry='340' fill='black'/%3E%3Cellipse cx='700' cy='500' rx='180' ry='340' fill='black'/%3E%3C/mask%3E%3Crect width='1000' height='1000' fill='white' mask='url(%23m)'/%3E%3C/svg%3E");
+ mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'%3E%3Cmask id='m'%3E%3Crect width='1000' height='1000' fill='white'/%3E%3Cellipse cx='300' cy='500' rx='180' ry='340' fill='black'/%3E%3Cellipse cx='700' cy='500' rx='180' ry='340' fill='black'/%3E%3C/mask%3E%3Crect width='1000' height='1000' fill='white' mask='url(%23m)'/%3E%3C/svg%3E");
 }
 body.vr-mode #stage canvas{width:100vw;height:100dvh}
-
 body.vr-mode #stage::before{content:"";position:fixed;z-index:5;pointer-events:none;left:calc(50% - 1px);top:65%;bottom:0;width:2px;background:linear-gradient(to bottom,transparent,#fff 20%,#fff 100%);opacity:.8}
 </style>
 </head>
@@ -299,11 +296,14 @@ function drawFrame(){
  // Cardboard: dos vistas contiguas, sin separación negra. Cada ojo muestra
  // la misma panorámica centrada y con un campo de visión más amplio para verla algo más pequeña.
  const half=Math.floor(width/2),rightWidth=width-half;
- const eyeFov=Math.min(150,camera.fov*1.25);
+ const eyeFov=Math.min(105,camera.fov*1.05);
  leftEye.fov=rightEye.fov=eyeFov;
  leftEye.aspect=half/height;rightEye.aspect=rightWidth/height;
  leftEye.near=rightEye.near=camera.near;leftEye.far=rightEye.far=camera.far;
- leftEye.position.copy(camera.position);rightEye.position.copy(camera.position);
+ // Separación interpupilar suave, con la misma orientación para conservar la panorámica.
+ const eyeOffset=new THREE.Vector3(0.032,0,0).applyQuaternion(camera.quaternion);
+ leftEye.position.copy(camera.position).sub(eyeOffset);
+ rightEye.position.copy(camera.position).add(eyeOffset);
  leftEye.quaternion.copy(camera.quaternion);rightEye.quaternion.copy(camera.quaternion);
  leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
  renderer.setScissorTest(true);
