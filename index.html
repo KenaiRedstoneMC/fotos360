@@ -85,6 +85,30 @@ function init(){
  controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
  controls.rotateSpeed=-.35;controls.zoomSpeed=.8;controls.minDistance=.01;controls.maxDistance=.01;
  controls.enableZoom=false;controls.enablePan=false;
+ // Permitir rotación completa de la cámara, incluido el giro tipo "voltear el móvil".
+ // El roll se controla con dos dedos: moverlos juntos alrededor del centro rota la vista.
+ camera.up.set(0,1,0);
+ let rollGesture=null;
+ const canvasForRoll=renderer.domElement;
+ canvasForRoll.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+   const a=e.touches[0],b=e.touches[1];
+   rollGesture={angle:Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX),roll:camera.rotation.z};
+  }
+ },{passive:true});
+ canvasForRoll.addEventListener('touchmove',e=>{
+  if(e.touches.length!==2||!rollGesture)return;
+  const a=e.touches[0],b=e.touches[1];
+  const angle=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX);
+  let delta=angle-rollGesture.angle;
+  if(delta>Math.PI)delta-=Math.PI*2;
+  if(delta<-Math.PI)delta+=Math.PI*2;
+  camera.rotation.order='YXZ';
+  camera.rotation.z=rollGesture.roll+delta;
+ },{passive:true});
+ const clearRoll=()=>{rollGesture=null};
+ canvasForRoll.addEventListener('touchend',clearRoll,{passive:true});
+ canvasForRoll.addEventListener('touchcancel',clearRoll,{passive:true});
  // Zoom con dos dedos: separa los dedos para acercar y júntalos para alejar.
  const canvas=renderer.domElement;canvas.style.touchAction='none';
  let pinchDistance=0;
