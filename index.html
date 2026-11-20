@@ -418,8 +418,8 @@ window.addEventListener('keydown',event=>{
  const spherical=new THREE.Spherical().setFromVector3(offset);
  if(key==='a')spherical.theta+=keyboardLookSpeed;
  if(key==='d')spherical.theta-=keyboardLookSpeed;
- if(key==='w')spherical.phi-=keyboardLookSpeed;
- if(key==='s')spherical.phi+=keyboardLookSpeed;
+ if(key==='w')spherical.phi+=keyboardLookSpeed;
+ if(key==='s')spherical.phi-=keyboardLookSpeed;
  spherical.phi=THREE.MathUtils.clamp(spherical.phi,.001,Math.PI-.001);
  offset.setFromSpherical(spherical);
  camera.position.copy(controls.target).add(offset);
