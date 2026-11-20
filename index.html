@@ -21,7 +21,7 @@ body.vr-mode .top,body.vr-mode #status,body.vr-mode #galleryPanel,body.vr-mode #
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
 .videoLink{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:11px 18px;border:1px solid #00d9ff75;border-radius:999px;background:linear-gradient(145deg,#10283aee,#07111fee);color:#c9f8ff;text-decoration:none;font-weight:800;box-shadow:0 0 22px #00d9ff20;transition:.2s}
 .videoLink:hover{color:#00f0c8;border-color:#00f0c8;transform:translateY(-2px);box-shadow:0 0 22px #00d9ff40}
-#galleryPanel{position:fixed;z-index:7;inset:76px 18px 58px;overflow:auto;padding:20px;background:#0a100deF;border:1px solid #ffffff24;border-radius:18px;backdrop-filter:blur(16px);display:none}#galleryPanel.visible{display:block}.galleryHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.galleryHeading h2{font-size:1.15rem;margin:0}.galleryHeading small{color:#aeb9ae}#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px}.photoCard{width:100%;border:1px solid #ffffff25;background:#111b13;border-radius:13px;overflow:hidden;color:#fff;text-align:left;padding:0;cursor:pointer;transition:transform .18s,border-color .18s}.photoCard:hover,.photoCard:focus-visible{border-color:#a4f43b;transform:translateY(-3px);outline:none}.photoCard img{display:block;width:100%;height:145px;object-fit:cover;background:#050705}.photoCard span{display:block;padding:10px 12px;font-size:.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.emptyGallery{color:#c0c9c0;text-align:center;padding:24px;font-size:.9rem}.loadMorePhotos{display:block;margin:22px auto 8px;padding:12px 22px;border:1px solid #00e5ff88;border-radius:12px;background:#071b27;color:#eaffff;font-weight:700;cursor:pointer}.loadMorePhotos[hidden]{display:none}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+#galleryPanel{position:fixed;z-index:7;inset:76px 18px 58px;overflow:auto;padding:20px;background:#0a100deF;border:1px solid #ffffff24;border-radius:18px;backdrop-filter:blur(16px);display:none}#galleryPanel.visible{display:block}.galleryHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.galleryHeading h2{font-size:1.15rem;margin:0}.galleryHeading small{color:#aeb9ae}#photoChooser{display:flex;align-items:center;justify-content:center;gap:14px;min-height: min(58vh,520px)}#photoChooser>button:not(.photoSelect){flex:0 0 54px;width:54px;height:54px;border-radius:50%;font-size:1.7rem}#photoSelect{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(68vw,620px);padding:12px;border:1px solid #00e5ff66;border-radius:16px;background:#071522;color:#fff;cursor:pointer}#photoPreview{display:block;width:100%;height:min(48vh,390px);object-fit:contain;background:#030711;border-radius:10px}#photoName{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}#photoPosition{text-align:center;color:#aeb9c9;margin-top:8px;font-size:.85rem}.emptyGallery{color:#c0c9c0;text-align:center;padding:24px;font-size:.9rem}@media(max-width:600px){#photoChooser{gap:5px;min-height:52vh}#photoChooser>button:not(.photoSelect){flex-basis:42px;width:42px;height:42px;font-size:1.3rem}#photoSelect{width:calc(100% - 94px);padding:7px}#photoPreview{height:38vh}}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
 .hidden{display:none!important}
 
 @media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{inset:64px 8px 48px;padding:13px}#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.photoCard img{height:112px}.photoCard span{font-size:.72rem;padding:8px}}
@@ -234,7 +234,7 @@ button:disabled::after{animation-play-state:paused;opacity:.45}
 <div id="stage"></div>
 <div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
 <div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard VR">🥽 VR</button></div>
-<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="galleryGrid"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
+<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="photoChooser" class="photoChooser"><button id="photoPrev" type="button" aria-label="Fotografía anterior">←</button><button id="photoSelect" class="photoSelect" type="button"><img id="photoPreview" alt="Vista previa"><span id="photoName">Cargando fotografías…</span></button><button id="photoNext" type="button" aria-label="Fotografía siguiente">→</button></div><div id="photoPosition" class="photoPosition"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
@@ -640,66 +640,45 @@ init();
 <script>
 (async()=>{
  const panel=document.getElementById('galleryPanel');
- const grid=document.getElementById('galleryGrid');
  const status=document.getElementById('status');
  const count=document.getElementById('photoCount');
- const welcomePanel=document.getElementById('welcome');
- const BATCH_SIZE=8;
- let files=[],shown=0;
- const moreButton=document.createElement('button');
- moreButton.type='button';
- moreButton.className='loadMorePhotos';
- moreButton.textContent='Cargar más fotografías';
- moreButton.hidden=true;
- grid.insertAdjacentElement('afterend',moreButton);
-
+ const preview=document.getElementById('photoPreview');
+ const name=document.getElementById('photoName');
+ const position=document.getElementById('photoPosition');
+ const prev=document.getElementById('photoPrev');
+ const next=document.getElementById('photoNext');
+ const select=document.getElementById('photoSelect');
+ let files=[],index=0;
  document.getElementById('toggleGallery').addEventListener('click',()=>{
-  if(panel.classList.contains('visible')) panel.classList.remove('visible');
-  else {welcomePanel?.classList.add('hidden');panel.classList.add('visible');}
+  if(panel.classList.contains('visible'))panel.classList.remove('visible');
+  else{document.getElementById('welcome')?.classList.add('hidden');panel.classList.add('visible');}
  });
-
- function renderNextBatch(){
-  const batch=files.slice(shown,shown+BATCH_SIZE);
-  const fragment=document.createDocumentFragment();
-  batch.forEach((file,index)=>{
-   const number=shown+index+1;
-   const card=document.createElement('button');
-   card.className='photoCard';card.type='button';card.title='Ver '+file;
-   const img=document.createElement('img');
-   img.src='./fotos/'+encodeURIComponent(file);
-   img.alt='Vista previa de '+file;
-   img.loading='lazy';img.decoding='async';img.fetchPriority='low';
-   img.width=320;img.height=180;
-   const caption=document.createElement('span');
-   caption.textContent=String(number).padStart(2,'0')+'  /  '+file;
-   card.append(img,caption);
-   card.addEventListener('click',()=>{window.loadStored360?.(file);});
-   img.addEventListener('error',()=>{
-    img.alt='Vista previa no disponible';
-    caption.textContent=file+' · imagen no encontrada';
-   });
-   fragment.appendChild(card);
-  });
-  grid.appendChild(fragment);
-  shown+=batch.length;
-  moreButton.hidden=shown>=files.length;
-  moreButton.textContent='Cargar más fotografías ('+(files.length-shown)+' restantes)';
-  status.textContent='Mostrando '+shown+' de '+files.length+' fotografías';
+ function showPhoto(){
+  if(!files.length)return;
+  const file=files[index];
+  preview.src='./fotos/'+encodeURIComponent(file);
+  preview.alt='Vista previa de '+file;
+  name.textContent=file;
+  position.textContent=(index+1)+' / '+files.length;
+  count.textContent=files.length+' fotos';
+  prev.disabled=index===0;
+  next.disabled=index===files.length-1;
  }
- moreButton.addEventListener('click',renderNextBatch);
-
+ prev.addEventListener('click',()=>{if(index>0){index--;showPhoto();}});
+ next.addEventListener('click',()=>{if(index<files.length-1){index++;showPhoto();}});
+ select.addEventListener('click',()=>{if(files[index])window.loadStored360?.(files[index]);});
+ preview.addEventListener('error',()=>{name.textContent='No se pudo cargar esta vista previa';});
  try{
   const response=await fetch('./fotos/lista.json',{cache:'default'});
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
-  files=[...new Set(data.filter(name=>typeof name==='string'&&name.trim()).map(name=>name.trim()))];
-  count.textContent=files.length+' fotos';
-  if(!files.length){grid.innerHTML='<div class="emptyGallery">Todavía no hay fotografías.</div>';return;}
-  renderNextBatch();
+  files=[...new Set(data.filter(file=>typeof file==='string'&&file.trim()).map(file=>file.trim()))];
+  if(!files.length){name.textContent='Todavía no hay fotografías.';position.textContent='';prev.disabled=next.disabled=true;return;}
+  showPhoto();
+  status.textContent=files.length+' fotografías disponibles · Usa las flechas para elegir una';
  }catch(error){
-  console.error(error);
-  grid.innerHTML='<div class="emptyGallery">No se pudo cargar la galería: '+error.message+'</div>';
+  console.error(error);name.textContent='No se pudo cargar la galería';position.textContent=error.message;
   status.textContent='Error en la galería: '+error.message;
  }
 })();
