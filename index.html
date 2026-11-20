@@ -197,6 +197,24 @@ body.vr-mode #stage::after{content:none}
 }
 body.vr-mode #stage::before{content:none!important}
 body.vr-mode #stage canvas{width:100vw;height:100dvh}
+
+/* Bordes RGB animados para todos los botones */
+button{
+  border:2px solid #ff3030!important;
+  animation:kenaiRgbBorder 5s linear infinite;
+}
+button:disabled{animation:none;border-color:#777!important;box-shadow:none!important}
+@keyframes kenaiRgbBorder{
+  0%{border-color:#ff3030;box-shadow:0 0 7px #ff303088, inset 0 0 5px #ff303022}
+  16%{border-color:#ff00cc;box-shadow:0 0 9px #ff00cc88, inset 0 0 5px #ff00cc22}
+  33%{border-color:#7b2cff;box-shadow:0 0 9px #7b2cff88, inset 0 0 5px #7b2cff22}
+  50%{border-color:#008cff;box-shadow:0 0 9px #008cff88, inset 0 0 5px #008cff22}
+  66%{border-color:#00e5ff;box-shadow:0 0 9px #00e5ff88, inset 0 0 5px #00e5ff22}
+  83%{border-color:#00ff80;box-shadow:0 0 9px #00ff8088, inset 0 0 5px #00ff8022}
+  100%{border-color:#ff3030;box-shadow:0 0 7px #ff303088, inset 0 0 5px #ff303022}
+}
+@media(prefers-reduced-motion:reduce){button{animation:none;border-color:#00d9ff!important}}
+
 </style>
 </head>
 <body>
