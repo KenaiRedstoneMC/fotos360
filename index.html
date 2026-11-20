@@ -297,22 +297,28 @@ function drawFrame(){
  const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
  renderer.setScissorTest(false);
  if(!vrMode){renderer.setViewport(0,0,width,height);renderer.render(scene,camera);return;}
- // Cardboard: dos vistas contiguas, sin separación negra. Cada ojo muestra
- // la misma panorámica centrada y con un campo de visión más amplio para verla algo más pequeña.
+ // Cardboard monoscópico: duplicar EXACTAMENTE la misma vista para ambos ojos.
+ // Sin separación interpupilar: evita el efecto de objetos desdoblados o con doble contorno.
+ // Cada mitad conserva su propio encuadre y una perspectiva algo más abierta para centrar
+ // la panorámica y hacer que se vea ligeramente más pequeña dentro de cada lente.
  const half=Math.floor(width/2),rightWidth=width-half;
- const eyeFov=Math.min(105,camera.fov*1.05);
+ const eyeFov=THREE.MathUtils.clamp(camera.fov*1.08,85,105);
  leftEye.fov=rightEye.fov=eyeFov;
  leftEye.aspect=half/height;rightEye.aspect=rightWidth/height;
  leftEye.near=rightEye.near=camera.near;leftEye.far=rightEye.far=camera.far;
- // Separación interpupilar suave, con la misma orientación para conservar la panorámica.
- const eyeOffset=new THREE.Vector3(0.032,0,0).applyQuaternion(camera.quaternion);
- leftEye.position.copy(camera.position).sub(eyeOffset);
- rightEye.position.copy(camera.position).add(eyeOffset);
- leftEye.quaternion.copy(camera.quaternion);rightEye.quaternion.copy(camera.quaternion);
+ // Las dos cámaras ocupan exactamente la misma posición y orientación.
+ leftEye.position.copy(camera.position);
+ rightEye.position.copy(camera.position);
+ leftEye.quaternion.copy(camera.quaternion);
+ rightEye.quaternion.copy(camera.quaternion);
  leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
  renderer.setScissorTest(true);
- renderer.setViewport(0,0,half,height);renderer.setScissor(0,0,half,height);renderer.render(scene,leftEye);
- renderer.setViewport(half,0,rightWidth,height);renderer.setScissor(half,0,rightWidth,height);renderer.render(scene,rightEye);
+ renderer.setViewport(0,0,half,height);
+ renderer.setScissor(0,0,half,height);
+ renderer.render(scene,leftEye);
+ renderer.setViewport(half,0,rightWidth,height);
+ renderer.setScissor(half,0,rightWidth,height);
+ renderer.render(scene,rightEye);
  renderer.setScissorTest(false);
 }
 window.addEventListener('wheel',e=>{if(!loaded)return;if(flatCanvas){flatScale=THREE.MathUtils.clamp(flatScale*Math.exp(-e.deltaY*.0015),.2,10);updateFlatTransform();}else if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
