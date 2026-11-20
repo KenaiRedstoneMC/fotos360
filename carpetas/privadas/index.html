@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#050705">
 <title>Privadas · Kenai 360</title>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at top,#1b2a16,#050705 65%);color:#fff;font-family:system-ui,Segoe UI,Arial,sans-serif}.panel{width:min(440px,100%);padding:28px;border:1px solid #a4f43b66;border-radius:22px;background:#101810eF;box-shadow:0 18px 70px #0009}h1{margin:0 0 8px;font-size:1.55rem}p{color:#c8d0c3;line-height:1.5}label{display:block;margin:22px 0 8px;font-weight:700}input{width:100%;padding:14px;border:1px solid #ffffff45;border-radius:12px;background:#050905;color:#fff;font:inherit}button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:999px;background:#a4f43b;color:#101810;font-weight:900;font-size:1rem;cursor:pointer}#message{min-height:24px;margin-top:14px;color:#ffd18a}.back{display:inline-block;margin-top:18px;color:#b9f77b}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(ellipse at top,#1b2a16,#050705 65%);color:#fff;font-family:system-ui,Segoe UI,Arial,sans-serif}.panel{width:min(440px,100%);padding:28px;border:1px solid #a4f43b66;border-radius:22px;background:#101810eF;box-shadow:0 18px 70px #0009}h1{margin:0 0 8px;font-size:1.55rem}p{color:#c8d0c3;line-height:1.5}label{display:block;margin:22px 0 8px;font-weight:700}input{width:100%;padding:14px;border:1px solid #ffffff45;border-radius:12px;background:#050905;color:#fff;font:inherit}button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:999px;background:#a4f43b;color:#101810;font-weight:900;font-size:1rem;cursor:pointer}#message{min-height:24px;margin-top:14px;color:#ffd18a}.back{display:inline-block;margin-top:18px;color:#b9f77b}.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-top:18px}.photo{margin:0;padding:8px;border:1px solid #a4f43b55;border-radius:14px;background:#080d08}.photo img{display:block;width:100%;height:auto;max-height:65vh;object-fit:contain;border-radius:9px}.photo a{display:block;margin-top:8px;color:#b9f77b;overflow-wrap:anywhere}.empty{color:#c8d0c3}
 </style>
 </head>
 <body>
@@ -21,7 +21,7 @@
 <div id="message" role="status" aria-live="polite"></div>
 <section id="inside" hidden>
 <h2>Acceso autorizado</h2>
-<p>La carpeta privada está preparada. Todavía no contiene fotografías. Antes de añadirlas, deben cifrarse para que los archivos originales no queden públicos en GitHub.</p>
+<p>Estas son las fotografías guardadas en tu carpeta privada.</p><div id="photos" class="gallery" aria-live="polite"><p class="empty">Cargando fotografías…</p></div><p><a class="back" href="./fotos/">📁 Fotos para mi abuela</a></p>
 </section>
 <a class="back" href="../../">← Volver a Kenai 360</a>
 </main>
@@ -33,6 +33,27 @@ const CONFIG={
  iterations:310000
 };
 const fromB64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function loadPhotos(){
+ const container=document.getElementById("photos");
+ try{
+  const response=await fetch("./lista.json",{cache:"no-store"});
+  if(!response.ok)throw new Error("No se pudo leer la lista");
+  const files=await response.json();
+  container.replaceChildren();
+  if(!Array.isArray(files)||files.length===0){
+   container.innerHTML='<p class="empty">Todavía no hay fotografías en esta carpeta.</p>';
+   return;
+  }
+  for(const filename of files){
+   if(typeof filename!=="string"||filename.includes("/")||filename.includes("\\\\")||filename==="."||filename==="..")continue;
+   const figure=document.createElement("figure");figure.className="photo";
+   const img=document.createElement("img");img.src="./"+encodeURIComponent(filename);img.alt=filename;img.loading="lazy";
+   img.onerror=()=>{img.alt="No se pudo cargar "+filename;img.replaceWith(Object.assign(document.createElement("p"),{textContent:"No se pudo cargar: "+filename,className:"empty"}));};
+   const link=document.createElement("a");link.href="./"+encodeURIComponent(filename);link.target="_blank";link.rel="noopener";link.textContent="Abrir fotografía: "+filename;
+   figure.append(img,link);container.append(figure);
+  }
+ }catch(error){container.innerHTML='<p class="empty">No se pudieron cargar las fotografías. Comprueba lista.json.</p>';}
+}
 document.getElementById("unlock").addEventListener("submit",async event=>{
  event.preventDefault();
  const message=document.getElementById("message");
@@ -46,6 +67,7 @@ document.getElementById("unlock").addEventListener("submit",async event=>{
   document.getElementById("unlock").hidden=true;
   document.getElementById("inside").hidden=false;
   message.textContent="";
+  await loadPhotos();
  }catch(error){message.textContent="Contraseña incorrecta. Inténtalo de nuevo."}
  finally{button.disabled=false}
 });
