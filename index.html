@@ -198,22 +198,36 @@ body.vr-mode #stage::after{content:none}
 body.vr-mode #stage::before{content:none!important}
 body.vr-mode #stage canvas{width:100vw;height:100dvh}
 
-/* Bordes RGB animados para todos los botones */
+
+/* Línea RGB animada y visible en el contorno de TODOS los botones */
 button{
-  border:2px solid #ff3030!important;
-  animation:kenaiRgbBorder 5s linear infinite;
+  position:relative!important;
+  isolation:isolate!important;
+  border:2px solid transparent!important;
+  overflow:visible!important;
 }
-button:disabled{animation:none;border-color:#777!important;box-shadow:none!important}
-@keyframes kenaiRgbBorder{
-  0%{border-color:#ff3030;box-shadow:0 0 7px #ff303088, inset 0 0 5px #ff303022}
-  16%{border-color:#ff00cc;box-shadow:0 0 9px #ff00cc88, inset 0 0 5px #ff00cc22}
-  33%{border-color:#7b2cff;box-shadow:0 0 9px #7b2cff88, inset 0 0 5px #7b2cff22}
-  50%{border-color:#008cff;box-shadow:0 0 9px #008cff88, inset 0 0 5px #008cff22}
-  66%{border-color:#00e5ff;box-shadow:0 0 9px #00e5ff88, inset 0 0 5px #00e5ff22}
-  83%{border-color:#00ff80;box-shadow:0 0 9px #00ff8088, inset 0 0 5px #00ff8022}
-  100%{border-color:#ff3030;box-shadow:0 0 7px #ff303088, inset 0 0 5px #ff303022}
+button::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  z-index:5;
+  padding:3px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(90deg,#ff1744,#ff9100,#ffee00,#00e676,#00e5ff,#2979ff,#d500f9,#ff1744);
+  background-size:300% 300%;
+  animation:kenaiRgbLine 2.4s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  filter:drop-shadow(0 0 3px #00e5ff99);
 }
-@media(prefers-reduced-motion:reduce){button{animation:none;border-color:#00d9ff!important}}
+@keyframes kenaiRgbLine{
+  0%{background-position:0% 50%}
+  100%{background-position:300% 50%}
+}
+button:disabled::after{animation-play-state:paused;opacity:.45}
+@media(prefers-reduced-motion:reduce){button::after{animation:none;background:linear-gradient(90deg,#00e5ff,#d500f9,#00e5ff)}}
 
 </style>
 </head>
