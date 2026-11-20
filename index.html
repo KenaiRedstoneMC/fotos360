@@ -412,14 +412,14 @@ const keyboardLookSpeed=.07;
 window.addEventListener('keydown',event=>{
  const key=event.key.toLowerCase();
  if(!wasdKeys.has(key)||!loaded||vrMode||motionMode||!controls?.enabled)return;
- if(event.target instanceof HTMLElement&&(/INPUT|TEXTAREA|SELECT|BUTTON/.test(event.target.tagName)||event.target.isContentEditable))return;
+ if(event.target instanceof HTMLElement&&(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.target.isContentEditable))return;
  event.preventDefault();
  const offset=camera.position.clone().sub(controls.target);
  const spherical=new THREE.Spherical().setFromVector3(offset);
  if(key==='a')spherical.theta+=keyboardLookSpeed;
  if(key==='d')spherical.theta-=keyboardLookSpeed;
- if(key==='w')spherical.phi+=keyboardLookSpeed;
- if(key==='s')spherical.phi-=keyboardLookSpeed;
+ if(key==='w')spherical.phi-=keyboardLookSpeed;
+ if(key==='s')spherical.phi+=keyboardLookSpeed;
  spherical.phi=THREE.MathUtils.clamp(spherical.phi,.001,Math.PI-.001);
  offset.setFromSpherical(spherical);
  camera.position.copy(controls.target).add(offset);
