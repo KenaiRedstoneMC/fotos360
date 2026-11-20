@@ -256,8 +256,8 @@ function init(){
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
  camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1100);
  camera.position.set(0,0,0.01);
- renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false,powerPreference:'high-performance'});
- renderer.setPixelRatio(Math.min(devicePixelRatio,2.5));renderer.setSize(innerWidth,innerHeight);
+ renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:'low-power'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
  renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
  controls=new OrbitControls(camera,renderer.domElement);
  controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
@@ -353,7 +353,7 @@ function drawFrame(){
  renderer.setScissorTest(false);
 }
 window.addEventListener('wheel',e=>{if(!loaded)return;if(flatCanvas){flatScale=THREE.MathUtils.clamp(flatScale*Math.exp(-e.deltaY*.0015),.2,10);updateFlatTransform();}else if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
-function animate(){renderer.setAnimationLoop(()=>{if(controls&&controls.enabled)controls.update();drawFrame()})}
+function animate(){let lastFrame=0;renderer.setAnimationLoop((time)=>{if(time-lastFrame<33)return;lastFrame=time;if(controls&&controls.enabled)controls.update();drawFrame()})}
 function showGallery(){welcome.classList.add('hidden');galleryPanel.classList.add('visible')}
 function showHome(){galleryPanel.classList.remove('visible');welcome.classList.remove('hidden')}
 document.getElementById('choose').addEventListener('click',showGallery);
@@ -526,14 +526,14 @@ function loadImage(source,name){
   texture.generateMipmaps=true;
   texture.minFilter=THREE.LinearMipmapLinearFilter;
   texture.magFilter=THREE.LinearFilter;
-  texture.anisotropy=renderer.capabilities.getMaxAnisotropy();
+  texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
   if(sphere){scene.remove(sphere);sphere.geometry.dispose();sphere.material.dispose()}
   // Adaptar la esfera al formato real de cada JPG. Un 2:1 cubre 360° x 180°;
   // formatos más anchos (por ejemplo 3:1) cubren menos ángulo vertical.
   const aspect=loadedTexture.image.width/loadedTexture.image.height;
   const verticalAngle=Math.min(Math.PI,Math.PI*2/aspect);
   const thetaStart=(Math.PI-verticalAngle)/2;
-  const geometry=new THREE.SphereGeometry(500,160,96,0,Math.PI*2,thetaStart,verticalAngle);
+  const geometry=new THREE.SphereGeometry(500,96,64,0,Math.PI*2,thetaStart,verticalAngle);
   geometry.scale(-1,1,1);
   const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
