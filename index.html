@@ -405,6 +405,22 @@ async function toggleMotionMode(){
  }catch(error){console.warn(error);status.textContent='No se pudo activar el sensor. Comprueba los permisos del navegador.';}
 }
 motionButton.addEventListener('click',toggleMotionMode);
+
+// Controles de teclado WASD para mirar alrededor en la fotografía 360°.
+const wasdKeys=new Set(['w','a','s','d']);
+const keyboardLookSpeed=.045;
+window.addEventListener('keydown',event=>{
+ const key=event.key.toLowerCase();
+ if(!wasdKeys.has(key)||!loaded||vrMode||motionMode||!controls?.enabled)return;
+ if(event.target instanceof HTMLElement&&(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.target.isContentEditable))return;
+ event.preventDefault();
+ if(key==='a')controls.rotateLeft(keyboardLookSpeed);
+ if(key==='d')controls.rotateLeft(-keyboardLookSpeed);
+ if(key==='w')controls.rotateUp(keyboardLookSpeed);
+ if(key==='s')controls.rotateUp(-keyboardLookSpeed);
+ controls.update();
+});
+
 const lookCanvas=()=>renderer?.domElement;
 async function enterCardboard(){
  if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
