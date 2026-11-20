@@ -406,22 +406,26 @@ async function toggleMotionMode(){
 }
 motionButton.addEventListener('click',toggleMotionMode);
 
-// Controles de teclado WASD para mirar alrededor en la fotografía 360°.
+// Controles de teclado WASD: orbitan la cámara alrededor de la fotografía 360°.
 const wasdKeys=new Set(['w','a','s','d']);
-const keyboardLookSpeed=.045;
+const keyboardLookSpeed=.07;
 window.addEventListener('keydown',event=>{
  const key=event.key.toLowerCase();
  if(!wasdKeys.has(key)||!loaded||vrMode||motionMode||!controls?.enabled)return;
- if(event.target instanceof HTMLElement&&(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.target.isContentEditable))return;
+ if(event.target instanceof HTMLElement&&(/INPUT|TEXTAREA|SELECT|BUTTON/.test(event.target.tagName)||event.target.isContentEditable))return;
  event.preventDefault();
- if(key==='a')controls.rotateLeft(keyboardLookSpeed);
- if(key==='d')controls.rotateLeft(-keyboardLookSpeed);
- if(key==='w')controls.rotateUp(keyboardLookSpeed);
- if(key==='s')controls.rotateUp(-keyboardLookSpeed);
+ const offset=camera.position.clone().sub(controls.target);
+ const spherical=new THREE.Spherical().setFromVector3(offset);
+ if(key==='a')spherical.theta+=keyboardLookSpeed;
+ if(key==='d')spherical.theta-=keyboardLookSpeed;
+ if(key==='w')spherical.phi-=keyboardLookSpeed;
+ if(key==='s')spherical.phi+=keyboardLookSpeed;
+ spherical.phi=THREE.MathUtils.clamp(spherical.phi,.001,Math.PI-.001);
+ offset.setFromSpherical(spherical);
+ camera.position.copy(controls.target).add(offset);
+ camera.lookAt(controls.target);
  controls.update();
 });
-
-const lookCanvas=()=>renderer?.domElement;
 async function enterCardboard(){
  if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
  try{
