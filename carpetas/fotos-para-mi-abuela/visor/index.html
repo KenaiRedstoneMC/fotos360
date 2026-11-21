@@ -15,7 +15,8 @@
 .actions{display:flex;gap:8px;pointer-events:auto}button{border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px)}button:hover,select:hover{border-color:#a4f43b;color:#a4f43b}button:disabled{opacity:.4;cursor:default}select{max-width:180px;border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:9px 12px;font-weight:700}
 #file{display:none}
 #vrExit{display:none;position:fixed;z-index:30;top:max(12px,env(safe-area-inset-top));right:12px;background:#061522eF;border:1px solid #00f0c8;color:#eaffff;padding:12px 16px;box-shadow:0 0 22px #00d9ff55}
-body.vr-mode .top,body.vr-mode #status,body.vr-mode #galleryPanel,body.vr-mode #welcome{display:none!important}body.vr-mode #vrExit{display:block}body.vr-mode #stage{inset:0}
+body.vr-mode .top,body.vr-mode #status,body.vr-mode #galleryPanel,body.vr-mode
+body.vr-mode #vrExit{display:block}body.vr-mode #stage{inset:0}
 #welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
 .content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
@@ -229,9 +230,6 @@ button:disabled::after{animation-play-state:paused;opacity:.45}
 @media(prefers-reduced-motion:reduce){button::after{animation:none;background:linear-gradient(90deg,#00e5ff,#d500f9,#00e5ff)}}
 
 /* Vista directa para la carpeta de la abuela */
-#welcome{display:none!important}
-#galleryPanel{display:block!important}
-
 /* Ajuste general de galería: evita que el contenido quede cortado o desplazado */
 #galleryPanel{
   inset:82px 4vw 104px !important;
