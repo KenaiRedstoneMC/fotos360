@@ -758,7 +758,7 @@ init();
  }
  prev.addEventListener('click',()=>{if(index>0){index--;showPhoto();}});
  next.addEventListener('click',()=>{if(index<filteredFiles.length-1){index++;showPhoto();}});
- select.addEventListener('click',()=>{if(filteredFiles[index])window.loadStored360?.(filteredFiles[index]);});
+ select.addEventListener('click',()=>{if(filteredFiles[index]){const chosenFile=filteredFiles[index];panel.classList.remove('visible');window.loadStored360?.(chosenFile);}});
  function filterPhotos(){
   const query=search.value.trim().toLocaleLowerCase();
   filteredFiles=query?files.filter(file=>file.toLocaleLowerCase().includes(query)):files.slice();
