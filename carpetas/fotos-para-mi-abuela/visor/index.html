@@ -272,12 +272,19 @@ button:disabled::after{animation-play-state:paused;opacity:.45}
   #photoPreview{height:clamp(120px,30vh,190px) !important}
 }
 
+
+/* WebXR real: Quest 3 con seguimiento de cabeza y renderizado estereoscópico */
+body.vr-mode .actions,body.xr-mode .top,body.xr-mode .actions,body.xr-mode #status,body.xr-mode #galleryPanel,body.xr-mode #welcome{display:none!important}
+body.xr-mode #vrExit{display:block!important;z-index:99999;pointer-events:auto}
+body.xr-mode,body.xr-mode #stage,body.xr-mode canvas{width:100%;height:100%;overflow:hidden}
+#questVR{border-color:#8e9aff;background:linear-gradient(145deg,#454b7d,#242944);color:#fff}
+#questVR:disabled{opacity:.35}
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <div id="welcome" class="hidden"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="../../../carpetas/">📁 Carpetas</a><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
-<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard VR">🥽 VR</button></div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard para móviles">📱 Cardboard</button><button id="questVR" disabled title="Realidad virtual estereoscópica para Meta Quest 3">🥽 Quest 3 VR</button></div>
 <section id="galleryPanel" class="visible" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="photoChooser" class="photoChooser"><button id="photoPrev" type="button" aria-label="Fotografía anterior">←</button><button id="photoSelect" class="photoSelect" type="button"><img id="photoPreview" alt="Vista previa"><span id="photoName">Cargando fotografías…</span></button><button id="photoNext" type="button" aria-label="Fotografía siguiente">→</button></div><div class="photoSearch"><input id="photoSearchInput" type="search" placeholder="Buscar fotografía por nombre…" aria-label="Buscar fotografías por texto" autocomplete="off"><button id="photoSearchClear" type="button">Limpiar</button></div><div id="photoPosition" class="photoPosition"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
@@ -295,6 +302,8 @@ let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',ti
 let vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false,preVrFov=75;
 const vrButton=document.getElementById("vr"),vrExit=document.getElementById("vrExit");
 const leftEye=new THREE.PerspectiveCamera(),rightEye=new THREE.PerspectiveCamera();
+let xrMode=false,xrSession=null;
+const questVRButton=document.getElementById("questVR");
 function init(){
  try {
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
@@ -302,7 +311,10 @@ function init(){
  camera.position.set(0,0,0.01);
  renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
- renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.xr.enabled=true;
+ renderer.xr.setReferenceSpaceType("local");
+ stage.appendChild(renderer.domElement);
  controls=new OrbitControls(camera,renderer.domElement);
  controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
  controls.rotateSpeed=-.35;controls.zoomSpeed=.8;controls.minDistance=.01;controls.maxDistance=.01;
@@ -368,6 +380,8 @@ function resize(){
 }
 function drawFrame(){
  if(!renderer||!scene||!camera)return;
+ // En WebXR, Three.js genera automáticamente las dos vistas estereoscópicas y sigue la cabeza.
+ if(xrMode){renderer.setScissorTest(false);renderer.render(scene,camera);return;}
  const width=Math.max(1,renderer.domElement.clientWidth||innerWidth);
  const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
  renderer.setScissorTest(false);
@@ -397,7 +411,7 @@ function drawFrame(){
  renderer.setScissorTest(false);
 }
 window.addEventListener('wheel',e=>{if(!loaded)return;if(flatCanvas){flatScale=THREE.MathUtils.clamp(flatScale*Math.exp(-e.deltaY*.0015),.2,10);updateFlatTransform();}else if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
-function animate(){let lastFrame=0;renderer.setAnimationLoop((time)=>{if(time-lastFrame<33)return;lastFrame=time;if(controls&&controls.enabled)controls.update();drawFrame()})}
+function animate(){let lastFrame=0;renderer.setAnimationLoop((time)=>{if(!xrMode&&time-lastFrame<33)return;lastFrame=time;if(controls&&controls.enabled)controls.update();drawFrame()})}
 function showGallery(){welcome.classList.add('hidden');galleryPanel.classList.add('visible')}
 function showHome(){galleryPanel.classList.remove('visible');welcome.classList.remove('hidden')}
 document.getElementById('choose').addEventListener('click',showGallery);
@@ -470,6 +484,37 @@ window.addEventListener('keydown',event=>{
  camera.lookAt(controls.target);
  controls.update();
 });
+async function enterMetaQuestVR(){
+ if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
+ if(!navigator.xr){status.textContent='Este navegador no ofrece WebXR. Abre Kenai 360 desde el navegador de Meta Quest 3.';return;}
+ try{
+  // La llamada se inicia directamente desde el toque del botón, como exige WebXR.
+  const sessionRequest=navigator.xr.requestSession('immersive-vr',{
+   optionalFeatures:['local-floor','bounded-floor','dom-overlay'],
+   domOverlay:{root:document.body}
+  });
+  const session=await sessionRequest;
+  xrSession=session;
+  await renderer.xr.setSession(session);
+  xrMode=true;
+  controls.enabled=false;
+  document.body.classList.add('xr-mode');
+  status.textContent='Meta Quest VR activo · mueve la cabeza para mirar alrededor';
+  session.addEventListener('end',()=>{
+   xrMode=false;xrSession=null;
+   document.body.classList.remove('xr-mode');
+   if(controls){controls.enabled=true;controls.reset();camera.position.set(0,0,.01);}
+   status.textContent='Sesión de realidad virtual finalizada';
+  },{once:true});
+ }catch(error){
+  console.error('No se pudo iniciar WebXR:',error);
+  xrMode=false;xrSession=null;document.body.classList.remove('xr-mode');
+  status.textContent='No se pudo iniciar Meta Quest VR: '+(error.message||error)+'. Comprueba que estás en el navegador de Quest y que la página usa HTTPS.';
+ }
+}
+async function exitMetaQuestVR(){
+ if(xrSession){try{await xrSession.end();}catch(error){console.warn('No se pudo cerrar la sesión VR',error);}}
+}
 async function enterCardboard(){
  if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
  try{
@@ -545,7 +590,7 @@ function exitCardboard(){
  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
  status.textContent='Modo Cardboard desactivado';
 }
-vrButton.addEventListener('click',enterCardboard);vrExit.addEventListener('click',exitCardboard);
+vrButton.addEventListener('click',enterCardboard);questVRButton.addEventListener('click',enterMetaQuestVR);vrExit.addEventListener('click',()=>{if(xrMode)exitMetaQuestVR();else exitCardboard();});
 // No salir automáticamente de Cardboard si el navegador abandona fullscreen al rotar el móvil.
 document.addEventListener('fullscreenchange',()=>{
  if(vrMode&&!document.fullscreenElement){
@@ -602,7 +647,7 @@ function loadImage(source,name){
   const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;sphere.rotation.set(0,0,0);camera.updateProjectionMatrix();controls.update();
-  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;document.getElementById('flatMode').disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;vrButton.disabled=false;motionButton.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
+  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;document.getElementById('flatMode').disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;vrButton.disabled=false;questVRButton.disabled=false;motionButton.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
   status.textContent='Fotografía 360° cargada';
  },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
