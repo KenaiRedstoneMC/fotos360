@@ -291,6 +291,22 @@ body.xr-mode #vrExit{display:block!important;z-index:99999;pointer-events:auto}
 body.xr-mode,body.xr-mode #stage,body.xr-mode canvas{width:100%;height:100%;overflow:hidden}
 #questVR{border-color:#8e9aff;background:linear-gradient(145deg,#454b7d,#242944);color:#fff}
 #questVR:disabled{opacity:.35}
+
+/* Menú plegable en todos los dispositivos: mantener despejada la foto */
+#controlsToggle{display:inline-flex!important;align-items:center;justify-content:center;width:38px;height:38px;min-width:38px;padding:0;font-size:18px;border-radius:50%;flex:0 0 38px}
+.actions.mobile-collapsed{
+ position:fixed!important;z-index:60!important;
+ top:max(10px,env(safe-area-inset-top))!important;right:10px!important;
+ left:auto!important;bottom:auto!important;transform:none!important;
+ width:38px!important;max-width:38px!important;max-height:38px!important;
+ overflow:visible!important;padding:0!important;border:0!important;
+ background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;
+}
+.actions.mobile-collapsed>:not(#controlsToggle){display:none!important}
+.actions:not(.mobile-collapsed){z-index:60!important;max-height:min(42vh,300px);overflow-y:auto}
+@media(min-width:701px){
+ .actions:not(.mobile-collapsed){left:50%!important;right:auto!important;bottom:14px!important;top:auto!important;transform:translateX(-50%)!important}
+}
 </style>
 </head>
 <body>
@@ -311,7 +327,7 @@ const stage=document.getElementById('stage');
 const controlsBar=document.querySelector('.actions');
 const controlsToggle=document.getElementById('controlsToggle');
 if(controlsBar&&controlsToggle){
- if(window.matchMedia('(max-width:700px)').matches) controlsBar.classList.add('mobile-collapsed');
+ controlsBar.classList.add('mobile-collapsed');
  controlsToggle.addEventListener('click',()=>{
   const collapsed=controlsBar.classList.toggle('mobile-collapsed');
   controlsToggle.setAttribute('aria-expanded',String(!collapsed));
