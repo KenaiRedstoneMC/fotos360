@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050705">
+<link rel="icon" type="image/png" sizes="64x64" href="../../../logo-kenai-360.png?v=1">
+<link rel="apple-touch-icon" href="../../../logo-kenai-360.png?v=1">
+<title>Kenai 360 Player</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050705;color:#fff;font-family:system-ui,Segoe UI,Arial,sans-serif}
+#stage{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
+.top{position:fixed;z-index:5;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;padding:max(14px,env(safe-area-inset-top)) 18px 14px;background:linear-gradient(#000a,transparent);pointer-events:none}
+.brand{font-weight:900;letter-spacing:.12em;font-size:.9rem;text-shadow:0 2px 8px #000}.brand span{color:#a4f43b}
+.actions{display:flex;gap:8px;pointer-events:auto}button{border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px)}button:hover,select:hover{border-color:#a4f43b;color:#a4f43b}button:disabled{opacity:.4;cursor:default}select{max-width:180px;border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:9px 12px;font-weight:700}
+#file{display:none}
+#vrExit{display:none;position:fixed;z-index:30;top:max(12px,env(safe-area-inset-top));right:12px;background:#061522eF;border:1px solid #00f0c8;color:#eaffff;padding:12px 16px;box-shadow:0 0 22px #00d9ff55}
+body.vr-mode .top,body.vr-mode #status,body.vr-mode #galleryPanel,body.vr-mode #welcome{display:none!important}body.vr-mode #vrExit{display:block}body.vr-mode #stage{inset:0}
+#welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
+.content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
+p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
+.videoLink{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:11px 18px;border:1px solid #00d9ff75;border-radius:999px;background:linear-gradient(145deg,#10283aee,#07111fee);color:#c9f8ff;text-decoration:none;font-weight:800;box-shadow:0 0 22px #00d9ff20;transition:.2s}
+.videoLink:hover{color:#00f0c8;border-color:#00f0c8;transform:translateY(-2px);box-shadow:0 0 22px #00d9ff40}
+#galleryPanel{position:fixed;z-index:7;inset:76px 18px 58px;overflow:auto;padding:20px;background:#0a100deF;border:1px solid #ffffff24;border-radius:18px;backdrop-filter:blur(16px);display:none}#galleryPanel.visible{display:block}.galleryHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.galleryHeading h2{font-size:1.15rem;margin:0}.galleryHeading small{color:#aeb9ae}#photoChooser{display:flex;align-items:center;justify-content:center;gap:14px;min-height: min(58vh,520px)}#photoChooser>button:not(.photoSelect){flex:0 0 54px;width:54px;height:54px;border-radius:50%;font-size:1.7rem}#photoSelect{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(68vw,620px);padding:12px;border:1px solid #00e5ff66;border-radius:16px;background:#071522;color:#fff;cursor:pointer}#photoPreview{display:block;width:100%;height:min(48vh,390px);object-fit:contain;background:#030711;border-radius:10px}#photoName{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.9rem}#photoPosition{text-align:center;color:#aeb9c9;margin-top:8px;font-size:.85rem}.photoSearch{display:flex;justify-content:center;gap:8px;max-width:560px;margin:14px auto 0}.photoSearch input{min-width:0;flex:1;padding:11px 14px;border:1px solid #00e5ff66;border-radius:10px;background:#071522;color:#fff;font:inherit}.photoSearch button{padding:10px 14px;border:1px solid #ffffff35;border-radius:10px;background:#102332;color:#fff;cursor:pointer}.photoSearch input:focus{outline:2px solid #00e5ff88;outline-offset:2px}.emptyGallery{color:#c0c9c0;text-align:center;padding:24px;font-size:.9rem}@media(max-width:600px){#photoChooser{gap:5px;min-height:52vh}#photoChooser>button:not(.photoSelect){flex-basis:42px;width:42px;height:42px;font-size:1.3rem}#photoSelect{width:calc(100% - 94px);padding:7px}#photoPreview{height:38vh}}#status{position:fixed;z-index:5;bottom:max(14px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);max-width:calc(100% - 28px);padding:8px 14px;border-radius:999px;background:#0009;color:#e1e9df;font-size:.8rem;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none}
+.hidden{display:none!important}
+
+@media(max-width:600px){.top{padding-left:10px;padding-right:10px}.brand{font-size:.68rem}.actions{gap:4px}button{padding:8px 9px;font-size:.7rem}#status{font-size:.68rem}#galleryPanel{inset:64px 8px 48px;padding:13px}#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.photoCard img{height:112px}.photoCard span{font-size:.72rem;padding:8px}}
+
+/* KENAI 360 — interfaz futurista */
+:root{color-scheme:dark}
+html,body{background:#030711;color:#eefcff}
+
+#stage{background:radial-gradient(ellipse at 50% 45%,#10253a 0%,#030711 72%)}
+.top{z-index:8;background:linear-gradient(180deg,rgba(2,8,20,.94),rgba(2,8,20,.2));border-bottom:1px solid #00e5ff25;backdrop-filter:blur(12px)}
+.brand{color:#eaffff;text-shadow:0 0 18px #00d9ff70;letter-spacing:.16em}
+.brand span,.logo span{color:#00f0c8;text-shadow:0 0 18px #00f0c8a0}
+button{border:1px solid #00d9ff55;background:linear-gradient(145deg,#10283aee,#07111fee);box-shadow:inset 0 1px #ffffff12,0 7px 22px #0008;color:#e8fbff;transition:transform .2s,border-color .2s,box-shadow .2s}
+button:hover,select:hover{border-color:#00f0c8;color:#00f0c8;box-shadow:0 0 18px #00e5ff35,inset 0 0 14px #00e5ff12;transform:translateY(-2px)}
+#welcome{z-index:4;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#12354a 0%,#071321 42%,#030711 78%)}
+#welcome:before,#welcome:after{content:"";position:absolute;width:min(70vw,540px);aspect-ratio:1;border:1px solid #00e5ff35;border-radius:50%;box-shadow:0 0 35px #00e5ff18,inset 0 0 35px #00e5ff12;transform:rotateX(68deg);animation:orbit 18s linear infinite;pointer-events:none}
+#welcome:after{width:min(52vw,390px);border-color:#00f0c855;transform:rotateX(68deg) rotateZ(55deg);animation-direction:reverse}
+@keyframes orbit{to{rotate:0 0 1 360deg}}
+.content{position:relative;z-index:1;padding:38px 32px;border:1px solid #00e5ff45;border-radius:26px;background:linear-gradient(145deg,#10283bc9,#06101bd9);box-shadow:0 25px 90px #000b,0 0 45px #00d9ff18,inset 0 1px #ffffff20;backdrop-filter:blur(18px)}
+.logo{font-size:clamp(3rem,11vw,5.5rem);letter-spacing:-.08em;text-shadow:0 10px 35px #000,0 0 24px #00d9ff35}
+p{color:#b5d3df}
+#choose{background:linear-gradient(110deg,#00f0c8,#00baff);color:#03111a;border:0;box-shadow:0 0 28px #00d9ff55,0 8px 25px #0008}
+#galleryPanel{z-index:9;background:linear-gradient(145deg,rgba(7,20,34,.97),rgba(3,9,19,.97));border:1px solid #00d9ff55;border-radius:22px;box-shadow:0 25px 90px #000c,0 0 35px #00d9ff18,inset 0 1px #ffffff16;perspective:1200px}
+.galleryHeading{padding-bottom:14px;border-bottom:1px solid #00d9ff35}
+.galleryHeading h2{color:#eaffff;letter-spacing:.04em;text-shadow:0 0 15px #00d9ff35}
+.galleryHeading small{color:#80b6c7}
+#galleryGrid{gap:17px;perspective:1200px}
+.photoCard{position:relative;border:1px solid #1c7180;background:linear-gradient(145deg,#102b3c,#07121f);border-radius:15px;box-shadow:0 12px 25px #0008,inset 0 1px #ffffff16;transform-style:preserve-3d;transition:transform .25s,border-color .25s,box-shadow .25s}
+.photoCard:after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;background:linear-gradient(135deg,#00e5ff12,transparent 45%,#00f0c812)}
+.photoCard:hover,.photoCard:focus-visible{border-color:#00f0c8;transform:translateY(-7px) rotateX(3deg) rotateY(-2deg);box-shadow:0 22px 35px #000a,0 0 24px #00d9ff35}
+.photoCard img{height:155px;object-fit:cover;filter:saturate(1.12) contrast(1.04);border-bottom:1px solid #00d9ff35}
+.photoCard span{position:relative;z-index:1;color:#dffaff;font-size:.8rem;letter-spacing:.025em}
+#status{z-index:8;background:rgba(3,13,25,.82);border:1px solid #00d9ff55;color:#bafaff;box-shadow:0 0 18px #00d9ff20;backdrop-filter:blur(12px)}
+@media(max-width:600px){.content{padding:30px 20px}.photoCard img{height:118px}#effects{max-width:105px;padding:7px 6px;font-size:.65rem}.actions{flex-wrap:wrap;justify-content:flex-end;max-width:76vw}#download{font-size:.65rem}}
+
+
+/* Meta Quest 3 inspired home interface */
+:root{color-scheme:dark}
+html,body{background:#101116;color:#f7f7fa}
+#stage{background:radial-gradient(ellipse at 50% 45%,#34364a 0%,#1c1d29 48%,#101116 100%)}
+.top{position:fixed;inset:0 0 auto;display:block;padding:max(18px,env(safe-area-inset-top)) 22px;background:linear-gradient(180deg,rgba(12,13,19,.5),transparent);border:0;backdrop-filter:none;pointer-events:none}
+.brand{position:relative;display:inline-block;color:#fff;font-size:.82rem;letter-spacing:.09em;text-shadow:0 2px 12px #0008;pointer-events:auto}
+.brand span,.logo span{color:#c7c9ff;text-shadow:0 0 20px #a6aaff55}
+.actions{position:fixed;z-index:12;left:50%;top:auto;bottom:max(18px,env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:7px;flex-wrap:wrap;width:max-content;max-width:calc(100vw - 24px);padding:10px 12px;border:1px solid #ffffff20;border-radius:26px;background:rgba(35,37,49,.78);box-shadow:0 14px 44px #0008,inset 0 1px #ffffff18;backdrop-filter:blur(28px);pointer-events:auto}
+button,select{border:1px solid #ffffff1c;background:rgba(255,255,255,.075);color:#f5f5fa;border-radius:16px;box-shadow:none;backdrop-filter:blur(16px);transition:background .18s,border-color .18s,transform .18s}
+button:hover,select:hover{background:rgba(174,177,255,.2);border-color:#b7baff;color:#fff;box-shadow:0 5px 18px #0003;transform:translateY(-2px)}
+button:disabled{opacity:.32}
+#welcome{background:radial-gradient(ellipse at 50% 35%,#55566d 0%,#292b3b 34%,#171821 68%,#101116 100%);overflow:hidden}
+#welcome:before,#welcome:after{width:min(76vw,720px);border:1px solid #ffffff12;box-shadow:0 0 80px #aeb1ff10,inset 0 0 70px #ffffff08}
+#welcome:after{width:min(54vw,500px);border-color:#c9caff18}
+.content{max-width:560px;padding:clamp(30px,5vw,52px);border:1px solid #ffffff24;border-radius:30px;background:linear-gradient(145deg,rgba(65,67,84,.78),rgba(32,34,47,.82));box-shadow:0 30px 100px #0007,inset 0 1px #ffffff20;backdrop-filter:blur(32px)}
+.logo{font-size:clamp(3.2rem,10vw,5.5rem);letter-spacing:-.08em;text-shadow:0 8px 30px #0005}
+.content p{color:#e0e0eb;font-size:1rem}
+#choose{border:0;border-radius:999px;padding:14px 28px;background:#d7d8ff;color:#171824;font-size:.95rem;box-shadow:0 6px 22px #0003}
+#choose:hover{background:#fff;color:#171824}
+.videoLink{border:1px solid #ffffff25;border-radius:999px;background:#ffffff0d;color:#f2f2ff;box-shadow:none}
+.videoLink:hover{background:#ffffff18;color:#fff;border-color:#c6c8ff;box-shadow:none}
+#galleryPanel{inset:88px 4vw 112px;padding:clamp(16px,2.4vw,28px);border:1px solid #ffffff20;border-radius:28px;background:rgba(28,29,41,.84);box-shadow:0 24px 80px #0008;backdrop-filter:blur(30px)}
+.galleryHeading{padding:2px 2px 18px;border-bottom:1px solid #ffffff12}
+.galleryHeading h2{font-size:1.35rem;letter-spacing:-.025em;color:#fff;text-shadow:none}
+.galleryHeading small{color:#bfc0d0}
+#galleryGrid{gap:16px}
+.photoCard{border:1px solid #ffffff16;border-radius:21px;background:linear-gradient(145deg,#3a3c50,#292b3a);box-shadow:0 8px 24px #0003,inset 0 1px #ffffff16;overflow:hidden}
+.photoCard:after{background:linear-gradient(135deg,#ffffff0b,transparent 55%)}
+.photoCard:hover,.photoCard:focus-visible{border-color:#c3c5ff;background:#45475d;box-shadow:0 14px 30px #0005,0 0 0 1px #c3c5ff22;transform:translateY(-4px)}
+.photoCard img{height:160px;border-bottom:1px solid #ffffff12;filter:saturate(1.04)}
+.photoCard span{padding:12px 14px;color:#f4f4fa;font-size:.82rem}
+#status{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 78px);background:rgba(34,35,48,.78);border:1px solid #ffffff1b;color:#eeeeF7;box-shadow:0 8px 28px #0005;backdrop-filter:blur(22px)}
+#vrExit{background:rgba(37,38,54,.94);border:1px solid #d1d2ff;color:#fff;box-shadow:0 8px 28px #0008}
+body.vr-mode .top,body.vr-mode #status{display:none!important}
+@media(max-width:700px){
+ .top{padding:14px 14px}
+ .brand{font-size:.7rem}
+ .actions{gap:5px;padding:8px;bottom:max(10px,env(safe-area-inset-bottom));border-radius:22px}
+ .actions button{padding:8px 10px;font-size:.68rem;border-radius:13px}
+ .actions select{max-width:112px;padding:8px 7px;font-size:.65rem;border-radius:13px}
+ #galleryPanel{inset:64px 8px 126px;padding:13px;border-radius:22px}
+ #galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .photoCard img{height:112px}
+ .photoCard span{font-size:.7rem;padding:9px}
+ #status{bottom:calc(max(10px,env(safe-area-inset-bottom)) + 100px);font-size:.66rem}
+ .content{padding:30px 20px;border-radius:26px}
+}
+
+
+
+/* Tema futurista azul para inicio, menús y galería */
+:root{color-scheme:dark}
+html,body{background:#030914;color:#eaf7ff}
+#stage{background:radial-gradient(ellipse at 50% 42%,#12365c 0%,#07182d 52%,#020711 100%)}
+.top{background:linear-gradient(180deg,rgba(2,10,24,.96),rgba(3,14,30,.28));border-bottom:1px solid #168bff55;backdrop-filter:blur(18px)}
+.brand{color:#eaf7ff;text-shadow:0 0 18px #168bff88;letter-spacing:.17em}
+.brand span,.logo span{color:#39c5ff;text-shadow:0 0 20px #168bffb0}
+.actions{border:1px solid #269cff55;background:linear-gradient(135deg,rgba(8,35,65,.94),rgba(4,16,34,.94));box-shadow:0 12px 38px #000a,0 0 24px #087dff22,inset 0 1px #8bd8ff25}
+button,select{border:1px solid #268fff66;background:linear-gradient(145deg,rgba(15,54,91,.96),rgba(5,24,48,.98));color:#e8f7ff;box-shadow:inset 0 1px #ffffff18,0 5px 18px #0007;transition:all .2s}
+button:hover,select:hover{border-color:#53d5ff;color:#fff;background:linear-gradient(145deg,#1262a0,#08345f);box-shadow:0 0 18px #168bff70,inset 0 0 12px #46c9ff22;transform:translateY(-2px)}
+button:disabled{opacity:.35}
+#welcome{background:radial-gradient(ellipse at 50% 38%,#14518a 0%,#0a2545 35%,#041326 70%,#020711 100%)}
+#welcome:before,#welcome:after{border-color:#28baff55;box-shadow:0 0 48px #168bff30,inset 0 0 48px #168bff20}
+#welcome:after{border-color:#54dfff66}
+.content{position:relative;border:1px solid #3bbdff66;border-radius:28px;background:linear-gradient(145deg,rgba(12,54,91,.9),rgba(4,19,41,.94));box-shadow:0 28px 90px #000b,0 0 55px #087dff35,inset 0 1px #b8eaff28;backdrop-filter:blur(22px)}
+.content:before{content:"";position:absolute;inset:9px;border:1px solid #5bcfff20;border-radius:21px;pointer-events:none}
+.logo{text-shadow:0 0 26px #168bff88,0 8px 30px #0008}
+.content p{color:#c5e6ff}
+#choose{background:linear-gradient(105deg,#36d5ff,#168bff);color:#021426;border:0;box-shadow:0 0 28px #168bff88,0 7px 22px #0008}
+#choose:hover{background:linear-gradient(105deg,#9beaff,#48aaff);color:#021426}
+.videoLink{border:1px solid #39bfff88;background:rgba(7,43,77,.78);color:#d9f5ff;box-shadow:0 0 18px #168bff25}
+.videoLink:hover{border-color:#8ae7ff;color:#fff;background:#10518a}
+#galleryPanel{border:1px solid #258fff70;background:linear-gradient(145deg,rgba(5,25,48,.97),rgba(3,12,27,.98));box-shadow:0 25px 90px #000c,0 0 38px #087dff24,inset 0 1px #b8eaff18}
+.galleryHeading{border-bottom:1px solid #238bdf55}
+.galleryHeading h2{color:#eaf8ff;text-shadow:0 0 16px #168bff55}
+.galleryHeading small{color:#8fc9ee}
+.photoCard{border:1px solid #258fff55;background:linear-gradient(145deg,#10365c,#071a32);box-shadow:0 12px 28px #0008,inset 0 1px #b8eaff18}
+.photoCard:after{background:linear-gradient(135deg,#38cfff18,transparent 55%,#167bff16)}
+.photoCard:hover,.photoCard:focus-visible{border-color:#65ddff;box-shadow:0 16px 34px #000a,0 0 22px #168bff50}
+.photoCard img{border-bottom:1px solid #258fff55}
+.photoCard span{color:#e2f5ff}
+#status{background:rgba(3,20,40,.88);border:1px solid #268fff66;color:#d8f3ff;box-shadow:0 0 18px #087dff25;backdrop-filter:blur(16px)}
+#vrExit{background:linear-gradient(145deg,#104b7a,#061d39);border:1px solid #51cfff;color:#fff;box-shadow:0 0 22px #168bff55}
+@media(max-width:700px){
+ .actions{border-radius:20px}
+ .content{padding:30px 20px}
+ #galleryPanel{background:rgba(4,19,38,.97)}
+}
+
+
+
+/* Evitar que el aviso de estado tape el botón de entrada en la pantalla inicial */
+#welcome:not(.hidden) ~ #status{display:none!important}
+
+/* Barra de controles separada de la cabecera y anclada al borde inferior */
+.top{z-index:30;pointer-events:none}
+.brand{pointer-events:auto}
+.actions{
+ position:fixed!important;z-index:50!important;
+ top:auto!important;bottom:max(12px,env(safe-area-inset-bottom))!important;
+ left:50%!important;right:auto!important;transform:translateX(-50%)!important;
+ display:flex!important;flex-direction:row;flex-wrap:wrap;
+ align-items:center;justify-content:center;gap:7px;
+ width:max-content;max-width:calc(100vw - 24px);
+ max-height:min(30vh,210px);overflow-y:auto;overflow-x:hidden;
+ padding:9px 11px;border:1px solid #269cff88;border-radius:20px;
+ background:rgba(3,18,38,.97);box-shadow:0 12px 38px #000b,0 0 25px #087dff35;
+ backdrop-filter:blur(18px);pointer-events:auto!important;
+}
+.actions button,.actions select{position:relative;z-index:51;pointer-events:auto;touch-action:manipulation}
+#status{z-index:25;bottom:calc(max(12px,env(safe-area-inset-bottom)) + 34vh)}
+#stage,#stage canvas{z-index:0}
+#planetPreview,#flatPreview{z-index:6!important;pointer-events:auto}
+@media(max-width:700px){
+ .actions{bottom:max(8px,env(safe-area-inset-bottom))!important;max-width:calc(100vw - 12px);max-height:28vh;gap:5px;padding:7px;border-radius:17px}
+ .actions button{padding:8px 9px;font-size:.68rem}
+ .actions select{max-width:112px;padding:8px 7px;font-size:.65rem}
+ #status{bottom:calc(max(8px,env(safe-area-inset-bottom)) + 30vh);font-size:.66rem}
+}
+body.vr-mode .actions,body.vr-mode .brand{display:none!important}
+body.vr-mode #vrExit{display:block}
+
+
+
+/* Ocultar mensajes emergentes que permanecían sobre la fotografía */
+#status{display:none!important}
+
+/* Recorte Cardboard: dos ventanas panorámicas, solo en móviles */
+body.vr-mode #stage::after{content:none}
+@media (pointer:coarse) and (orientation:landscape){
+ body.vr-mode #stage::after{
+  content:"";display:block;position:fixed;inset:0;z-index:4;pointer-events:none;background:#000;
+  -webkit-mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H1000V1000H0Z%20M120%20145%20Q300%2065%20480%20145%20Q495%20155%20495%20205%20L495%20795%20Q495%20845%20480%20855%20Q300%20935%20120%20855%20Q105%20845%20105%20795%20L105%20205%20Q105%20155%20120%20145Z%20M520%20145%20Q700%2065%20880%20145%20Q895%20155%20895%20205%20L895%20795%20Q895%20845%20880%20855%20Q700%20935%20520%20855%20Q505%20845%20505%20795%20L505%20205%20Q505%20155%20520%20145Z%22%2F%3E%3C%2Fsvg%3E");mask-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%201000%201000%22%20preserveAspectRatio%3D%22none%22%3E%3Cpath%20fill%3D%22white%22%20fill-rule%3D%22evenodd%22%20d%3D%22M0%200H1000V1000H0Z%20M120%20145%20Q300%2065%20480%20145%20Q495%20155%20495%20205%20L495%20795%20Q495%20845%20480%20855%20Q300%20935%20120%20855%20Q105%20845%20105%20795%20L105%20205%20Q105%20155%20120%20145Z%20M520%20145%20Q700%2065%20880%20145%20Q895%20155%20895%20205%20L895%20795%20Q895%20845%20880%20855%20Q700%20935%20520%20855%20Q505%20845%20505%20795%20L505%20205%20Q505%20155%20520%20145Z%22%2F%3E%3C%2Fsvg%3E");
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ }
+}
+body.vr-mode #stage::before{content:none!important}
+body.vr-mode #stage canvas{width:100vw;height:100dvh}
+
+
+/* Línea RGB animada y visible en el contorno de TODOS los botones */
+button{
+  position:relative!important;
+  isolation:isolate!important;
+  border:2px solid transparent!important;
+  overflow:visible!important;
+}
+button::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  z-index:5;
+  padding:3px;
+  border-radius:inherit;
+  pointer-events:none;
+  background:linear-gradient(90deg,#ff1744,#ff9100,#ffee00,#00e676,#00e5ff,#2979ff,#d500f9,#ff1744);
+  background-size:300% 300%;
+  animation:kenaiRgbLine 12s linear infinite;
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+}
+@keyframes kenaiRgbLine{
+  0%{background-position:0% 50%}
+  100%{background-position:300% 50%}
+}
+button:disabled::after{animation-play-state:paused;opacity:.45}
+@media(prefers-reduced-motion:reduce){button::after{animation:none;background:linear-gradient(90deg,#00e5ff,#d500f9,#00e5ff)}}
+
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="welcome"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="../../../carpetas/">📁 Carpetas</a><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard VR">🥽 VR</button></div>
+<section id="galleryPanel" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="photoChooser" class="photoChooser"><button id="photoPrev" type="button" aria-label="Fotografía anterior">←</button><button id="photoSelect" class="photoSelect" type="button"><img id="photoPreview" alt="Vista previa"><span id="photoName">Cargando fotografías…</span></button><button id="photoNext" type="button" aria-label="Fotografía siguiente">→</button></div><div class="photoSearch"><input id="photoSearchInput" type="search" placeholder="Buscar fotografía por nombre…" aria-label="Buscar fotografías por texto" autocomplete="off"><button id="photoSearchClear" type="button">Limpiar</button></div><div id="photoPosition" class="photoPosition"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const stage=document.getElementById('stage');
+const galleryPanel=document.getElementById('galleryPanel'),galleryGrid=document.getElementById('galleryGrid');
+const welcome=document.getElementById('welcome'),status=document.getElementById('status');
+const reset=document.getElementById('reset'),full=document.getElementById('full');
+const rotateLeft=document.getElementById('rotateLeft'),rotateRight=document.getElementById('rotateRight');
+let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',tinyCanvas=null,flatCanvas=null,flatScale=1,flatRotation=0,flatDrag=null,flatLastX=0;
+let vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false,preVrFov=75;
+const vrButton=document.getElementById("vr"),vrExit=document.getElementById("vrExit");
+const leftEye=new THREE.PerspectiveCamera(),rightEye=new THREE.PerspectiveCamera();
+function init(){
+ try {
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
+ camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1100);
+ camera.position.set(0,0,0.01);
+ renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:'low-power'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+ controls=new OrbitControls(camera,renderer.domElement);
+ controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
+ controls.rotateSpeed=-.35;controls.zoomSpeed=.8;controls.minDistance=.01;controls.maxDistance=.01;
+ controls.enableZoom=false;controls.enablePan=false;
+ // Permitir rotación completa de la cámara, incluido el giro tipo "voltear el móvil".
+ // El roll se controla con dos dedos: moverlos juntos alrededor del centro rota la vista.
+ camera.up.set(0,1,0);
+ let rollGesture=null;
+ const canvasForRoll=renderer.domElement;
+ canvasForRoll.addEventListener('touchstart',e=>{
+  if(e.touches.length===2){
+   const a=e.touches[0],b=e.touches[1];
+   rollGesture={angle:Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX),roll:camera.rotation.z};
+  }
+ },{passive:true});
+ canvasForRoll.addEventListener('touchmove',e=>{
+  if(e.touches.length!==2||!rollGesture)return;
+  const a=e.touches[0],b=e.touches[1];
+  const angle=Math.atan2(b.clientY-a.clientY,b.clientX-a.clientX);
+  let delta=angle-rollGesture.angle;
+  if(delta>Math.PI)delta-=Math.PI*2;
+  if(delta<-Math.PI)delta+=Math.PI*2;
+  camera.rotation.order='YXZ';
+  camera.rotation.z=rollGesture.roll+delta;
+ },{passive:true});
+ const clearRoll=()=>{rollGesture=null};
+ canvasForRoll.addEventListener('touchend',clearRoll,{passive:true});
+ canvasForRoll.addEventListener('touchcancel',clearRoll,{passive:true});
+ // Zoom con dos dedos: separa los dedos para acercar y júntalos para alejar.
+ const canvas=renderer.domElement;canvas.style.touchAction='none';
+ let pinchDistance=0;
+ const getPinchDistance=touches=>Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);
+ canvas.addEventListener('touchstart',e=>{if(e.touches.length===2){pinchDistance=getPinchDistance(e.touches)}},{passive:true});
+ canvas.addEventListener('touchmove',e=>{
+  if(!loaded||e.touches.length!==2)return;
+  e.preventDefault();
+  const nextDistance=getPinchDistance(e.touches);
+  if(pinchDistance>0&&nextDistance>0){
+   if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*(nextDistance/pinchDistance),.25,12);updatePlanetTransform();}
+   else{camera.fov=THREE.MathUtils.clamp(camera.fov*(pinchDistance/nextDistance),.05,170);camera.updateProjectionMatrix();}
+   camera.updateProjectionMatrix();
+  }
+  pinchDistance=nextDistance;
+ },{passive:false});
+ const clearPinch=()=>{pinchDistance=0};
+ canvas.addEventListener('touchend',clearPinch,{passive:true});
+ canvas.addEventListener('touchcancel',clearPinch,{passive:true});
+ window.addEventListener('resize',resize);
+ window.addEventListener('orientationchange',()=>{setTimeout(resize,180);setTimeout(resize,650);});
+ window.visualViewport?.addEventListener('resize',resize);
+ animate();
+ } catch(error) { console.error(error); status.textContent='Error al iniciar el visor 3D: '+(error.message||error); }
+}
+function resize(){
+ if(!camera||!renderer)return;
+ const width=Math.max(1,window.innerWidth),height=Math.max(1,window.innerHeight);
+ camera.aspect=width/height;camera.updateProjectionMatrix();
+ renderer.setSize(width,height,false);
+ if(renderer.domElement){
+  renderer.domElement.style.width='100vw';
+  renderer.domElement.style.height='100dvh';
+ }
+}
+function drawFrame(){
+ if(!renderer||!scene||!camera)return;
+ const width=Math.max(1,renderer.domElement.clientWidth||innerWidth);
+ const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
+ renderer.setScissorTest(false);
+ if(!vrMode){renderer.setViewport(0,0,width,height);renderer.render(scene,camera);return;}
+ // Cardboard monoscópico: duplicar EXACTAMENTE la misma vista para ambos ojos.
+ // Sin separación interpupilar: evita el efecto de objetos desdoblados o con doble contorno.
+ // Cada mitad conserva su propio encuadre y una perspectiva algo más abierta para centrar
+ // la panorámica y hacer que se vea ligeramente más pequeña dentro de cada lente.
+ const half=Math.floor(width/2),rightWidth=width-half;
+ const eyeFov=THREE.MathUtils.clamp(camera.fov*1.08,85,105);
+ leftEye.fov=rightEye.fov=eyeFov;
+ leftEye.aspect=half/height;rightEye.aspect=rightWidth/height;
+ leftEye.near=rightEye.near=camera.near;leftEye.far=rightEye.far=camera.far;
+ // Las dos cámaras ocupan exactamente la misma posición y orientación.
+ leftEye.position.copy(camera.position);
+ rightEye.position.copy(camera.position);
+ leftEye.quaternion.copy(camera.quaternion);
+ rightEye.quaternion.copy(camera.quaternion);
+ leftEye.updateProjectionMatrix();rightEye.updateProjectionMatrix();
+ renderer.setScissorTest(true);
+ renderer.setViewport(0,0,half,height);
+ renderer.setScissor(0,0,half,height);
+ renderer.render(scene,leftEye);
+ renderer.setViewport(half,0,rightWidth,height);
+ renderer.setScissor(half,0,rightWidth,height);
+ renderer.render(scene,rightEye);
+ renderer.setScissorTest(false);
+}
+window.addEventListener('wheel',e=>{if(!loaded)return;if(flatCanvas){flatScale=THREE.MathUtils.clamp(flatScale*Math.exp(-e.deltaY*.0015),.2,10);updateFlatTransform();}else if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
+function animate(){let lastFrame=0;renderer.setAnimationLoop((time)=>{if(time-lastFrame<33)return;lastFrame=time;if(controls&&controls.enabled)controls.update();drawFrame()})}
+function showGallery(){welcome.classList.add('hidden');galleryPanel.classList.add('visible')}
+function showHome(){galleryPanel.classList.remove('visible');welcome.classList.remove('hidden')}
+document.getElementById('choose').addEventListener('click',showGallery);
+document.getElementById('home').addEventListener('click',showHome);
+document.getElementById('videos').addEventListener('click',()=>window.open('https://www.youtube.com/playlist?list=PLSdpbsob1cec','_blank','noopener,noreferrer'));
+rotateLeft.addEventListener('click',()=>rotatePanorama(-Math.PI/2));
+rotateRight.addEventListener('click',()=>rotatePanorama(Math.PI/2));
+function rotatePanorama(angle){
+ if(flatCanvas){flatRotation+=angle*180/Math.PI;updateFlatTransform();}
+ else if(tinyCanvas){
+  planetRotation+=angle*180/Math.PI;
+  updatePlanetTransform();
+ }else if(sphere){sphere.rotation.y+=angle;}
+ status.textContent=angle<0?'Panorámica girada 90° a la izquierda':'Panorámica girada 90° a la derecha';
+}
+document.getElementById('reset').addEventListener('click',()=>{
+ if(controls){controls.reset();camera.position.set(0,0,.01);controls.target.set(0,0,0);camera.fov=75;camera.updateProjectionMatrix();controls.update()}
+ if(sphere)sphere.rotation.set(0,0,0);
+ flatScale=1;flatRotation=0;updateFlatTransform();
+ planetScale=1;planetRotation=0;updatePlanetTransform();
+});
+full.addEventListener('click',()=>{if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()});
+let sensorActive=false,motionMode=false,mouseYaw=0,mousePitch=0,dragPointer=null,lastPointerX=0,lastPointerY=0;
+const motionButton=document.getElementById('motion');
+async function toggleMotionMode(){
+ if(vrMode)return;
+ if(motionMode){
+  motionMode=false;sensorActive=false;
+  window.removeEventListener('deviceorientation',onDeviceOrientation,true);
+  window.screen?.orientation?.removeEventListener?.('change',onScreenOrientation);
+  controls.enabled=true;controls.reset();camera.position.set(0,0,.01);
+  motionButton.textContent='🧭 Móvil';motionButton.setAttribute('aria-pressed','false');
+  status.textContent='Control por movimiento desactivado · arrastra para mirar';
+  return;
+ }
+ if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
+ if(!('DeviceOrientationEvent' in window)){status.textContent='Este dispositivo no ofrece sensor de orientación.';return;}
+ try{
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){
+   const permission=await DeviceOrientationEvent.requestPermission();
+   if(permission!=='granted'){status.textContent='Permiso del sensor no concedido.';return;}
+  }
+  motionMode=true;sensorActive=false;
+  controls.enabled=false;
+  window.addEventListener('deviceorientation',onDeviceOrientation,true);
+  window.screen?.orientation?.addEventListener?.('change',onScreenOrientation);
+  motionButton.textContent='🧭 Detener móvil';motionButton.setAttribute('aria-pressed','true');
+  status.textContent='Control por movimiento activo · inclina el móvil para mirar';
+ }catch(error){console.warn(error);status.textContent='No se pudo activar el sensor. Comprueba los permisos del navegador.';}
+}
+motionButton.addEventListener('click',toggleMotionMode);
+
+// Controles de teclado WASD: orbitan la cámara alrededor de la fotografía 360°.
+const wasdKeys=new Set(['w','a','s','d']);
+const keyboardLookSpeed=.07;
+window.addEventListener('keydown',event=>{
+ const key=event.key.toLowerCase();
+ if(!wasdKeys.has(key)||!loaded||vrMode||motionMode||!controls?.enabled)return;
+ if(event.target instanceof HTMLElement&&(/INPUT|TEXTAREA|SELECT/.test(event.target.tagName)||event.target.isContentEditable))return;
+ event.preventDefault();
+ const offset=camera.position.clone().sub(controls.target);
+ const spherical=new THREE.Spherical().setFromVector3(offset);
+ if(key==='a')spherical.theta+=keyboardLookSpeed;
+ if(key==='d')spherical.theta-=keyboardLookSpeed;
+ if(key==='w')spherical.phi+=keyboardLookSpeed;
+ if(key==='s')spherical.phi-=keyboardLookSpeed;
+ spherical.phi=THREE.MathUtils.clamp(spherical.phi,.001,Math.PI-.001);
+ offset.setFromSpherical(spherical);
+ camera.position.copy(controls.target).add(offset);
+ camera.lookAt(controls.target);
+ controls.update();
+});
+async function enterCardboard(){
+ if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
+ try{
+  // La pantalla completa se solicita desde el gesto del usuario, pero no es obligatoria.
+  const fullscreenAttempt=(!document.fullscreenElement&&document.documentElement.requestFullscreen)
+   ? document.documentElement.requestFullscreen({navigationUI:'hide'}).catch(e=>{console.warn('Pantalla completa no disponible',e);})
+   : Promise.resolve();
+  let permissionGranted=true;
+  // En Safari iOS el permiso del giroscopio debe pedirse directamente al tocar el botón.
+  if(typeof DeviceOrientationEvent!=='undefined'&&typeof DeviceOrientationEvent.requestPermission==='function'){
+   try{permissionGranted=(await DeviceOrientationEvent.requestPermission())==='granted';}
+   catch(permissionError){permissionGranted=false;console.warn('Permiso del sensor no concedido',permissionError);}
+  }
+  await fullscreenAttempt;
+  // En Android/Chrome, bloquear horizontal al entrar en Cardboard.
+  // En iOS u otros navegadores que no lo permiten, se mantiene el modo VR sin bloquear.
+  try{
+   if(document.fullscreenElement&&screen.orientation?.lock){
+    await screen.orientation.lock('landscape');
+   }
+  }catch(orientationError){console.info('El navegador no permite bloquear la orientación',orientationError);}
+  screenAngle=window.screen?.orientation?.angle??window.orientation??0;
+  sensorActive=false;deviceOrientation=null;
+  if(motionMode){
+   motionMode=false;window.removeEventListener('deviceorientation',onDeviceOrientation,true);
+   window.screen?.orientation?.removeEventListener?.('change',onScreenOrientation);
+   motionButton.textContent='🧭 Móvil';motionButton.setAttribute('aria-pressed','false');
+  }
+  if(permissionGranted&&'DeviceOrientationEvent' in window){
+   window.addEventListener('deviceorientation',onDeviceOrientation,true);
+   window.screen?.orientation?.addEventListener?.('change',onScreenOrientation);
+  }
+  mouseYaw=0;mousePitch=0;
+  preVrFov=camera.fov;camera.fov=90;camera.updateProjectionMatrix();
+  vrMode=true;controls.enabled=false;
+  document.body.classList.add('vr-mode');
+  status.textContent=permissionGranted
+   ? 'Cardboard activo · mueve el móvil o arrastra para mirar'
+   : 'Cardboard activo · sensor no disponible: arrastra con el dedo';
+ }catch(error){console.error(error);status.textContent='No se pudo activar Cardboard: '+(error.message||error);}
+}
+function onDeviceOrientation(event){
+ if(event.alpha==null||event.beta==null||event.gamma==null)return;
+ sensorActive=true;
+ const euler=new THREE.Euler(
+  THREE.MathUtils.degToRad(event.beta),
+  THREE.MathUtils.degToRad(event.alpha),
+  -THREE.MathUtils.degToRad(event.gamma),
+  'YXZ'
+ );
+ const q=new THREE.Quaternion().setFromEuler(euler);
+ // Corrección de cámara usada por los controles de orientación de Three.js.
+ q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2));
+ const angle=THREE.MathUtils.degToRad(-(window.screen?.orientation?.angle??window.orientation??0));
+ q.multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,0,1),angle));
+ camera.quaternion.copy(q);
+}
+function onScreenOrientation(){screenAngle=window.screen?.orientation?.angle??window.orientation??0;}
+function updateMouseLook(dx,dy){
+ mouseYaw-=dx*.0025;
+ mousePitch=THREE.MathUtils.clamp(mousePitch-dy*.0025,-Math.PI/2+.02,Math.PI/2-.02);
+ camera.quaternion.setFromEuler(new THREE.Euler(mousePitch,mouseYaw,0,'YXZ'));
+}
+function exitCardboard(){
+ if(!vrMode)return;
+ vrMode=false;sensorActive=false;
+ window.removeEventListener('deviceorientation',onDeviceOrientation,true);
+ window.screen?.orientation?.removeEventListener?.('change',onScreenOrientation);
+ if(document.pointerLockElement)document.exitPointerLock?.();
+ try{screen.orientation?.unlock?.();}catch(e){}
+ dragPointer=null;
+ document.body.classList.remove('vr-mode');camera.fov=preVrFov;camera.updateProjectionMatrix();controls.enabled=true;controls.reset();camera.position.set(0,0,.01);
+ if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
+ status.textContent='Modo Cardboard desactivado';
+}
+vrButton.addEventListener('click',enterCardboard);vrExit.addEventListener('click',exitCardboard);
+// No salir automáticamente de Cardboard si el navegador abandona fullscreen al rotar el móvil.
+document.addEventListener('fullscreenchange',()=>{
+ if(vrMode&&!document.fullscreenElement){
+  status.textContent='Cardboard sigue activo · pantalla completa no disponible';
+ }
+});
+// En ordenador: clic para capturar el ratón y mirar libremente; también funciona arrastrando.
+document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement!==lookCanvas())dragPointer=null;});
+document.addEventListener('mousemove',e=>{
+ if((!vrMode&&!motionMode)||(vrMode&&sensorActive)||sensorActive)return;
+ if(document.pointerLockElement===lookCanvas())updateMouseLook(e.movementX,e.movementY);
+});
+document.addEventListener('pointerdown',e=>{
+ if(!vrMode||sensorActive||e.target===vrExit)return;
+ if(e.pointerType==='mouse'){
+  if(e.button!==0)return;
+  dragPointer=e.pointerId;lastPointerX=e.clientX;lastPointerY=e.clientY;
+  lookCanvas()?.requestPointerLock?.();
+ }else{
+  dragPointer=e.pointerId;lastPointerX=e.clientX;lastPointerY=e.clientY;
+ }
+});
+document.addEventListener('pointermove',e=>{
+ if(!vrMode||sensorActive||dragPointer!==e.pointerId||document.pointerLockElement===lookCanvas())return;
+ updateMouseLook(e.clientX-lastPointerX,e.clientY-lastPointerY);
+ lastPointerX=e.clientX;lastPointerY=e.clientY;
+});
+const releaseLook=()=>{dragPointer=null;};
+document.addEventListener('pointerup',releaseLook);
+document.addEventListener('pointercancel',releaseLook);
+function loadImage(source,name){
+ if(flatCanvas){flatCanvas.remove();flatCanvas=null;}
+ flatScale=1;flatRotation=0;
+ currentFile=name;
+ status.textContent='Cargando '+name+' en la esfera 3D…';
+ if(!renderer||!scene||!camera){status.textContent='El visor 3D no se ha iniciado. Recarga la página.';return;}
+ const loader=new THREE.TextureLoader();
+ loader.load(source,(loadedTexture)=>{
+  if(texture)texture.dispose();texture=loadedTexture;
+  texture.colorSpace=THREE.SRGBColorSpace;
+  texture.mapping=THREE.UVMapping;
+  texture.generateMipmaps=true;
+  texture.minFilter=THREE.LinearMipmapLinearFilter;
+  texture.magFilter=THREE.LinearFilter;
+  texture.anisotropy=Math.min(4,renderer.capabilities.getMaxAnisotropy());
+  if(sphere){scene.remove(sphere);sphere.geometry.dispose();sphere.material.dispose()}
+  // Adaptar la esfera al formato real de cada JPG. Un 2:1 cubre 360° x 180°;
+  // formatos más anchos (por ejemplo 3:1) cubren menos ángulo vertical.
+  const aspect=loadedTexture.image.width/loadedTexture.image.height;
+  const verticalAngle=Math.min(Math.PI,Math.PI*2/aspect);
+  const thetaStart=(Math.PI-verticalAngle)/2;
+  const geometry=new THREE.SphereGeometry(500,96,64,0,Math.PI*2,thetaStart,verticalAngle);
+  geometry.scale(-1,1,1);
+  const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
+  sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
+  controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;sphere.rotation.set(0,0,0);camera.updateProjectionMatrix();controls.update();
+  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;document.getElementById('flatMode').disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;vrButton.disabled=false;motionButton.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
+  status.textContent='Fotografía 360° cargada';
+ },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
+}
+
+let planetScale=1,planetRotation=0,planetDrag=null,planetLastX=0,planetLastY=0;
+function updateFlatTransform(){if(flatCanvas)flatCanvas.style.transform='translate(-50%,-50%) scale('+flatScale+') rotate('+flatRotation+'deg)';}
+function toggleFlatMode(){
+ if(!loaded||!texture?.image)return;
+ if(flatCanvas){flatCanvas.remove();flatCanvas=null;renderer.domElement.style.display='block';document.getElementById('flatMode').textContent='▭ Plano';status.textContent='Vista 360° restaurada';return;}
+ if(tinyCanvas){tinyCanvas.remove();tinyCanvas=null;}
+ const c=document.createElement('canvas');c.width=texture.image.width;c.height=texture.image.height;c.getContext('2d').drawImage(texture.image,0,0);
+ c.id='flatPreview';c.style.cssText='position:fixed;z-index:20;left:50%;top:50%;width:min(96vw,180vh);height:auto;max-height:86vh;object-fit:contain;transform-origin:center center;touch-action:none;cursor:grab;user-select:none;filter:'+renderer.domElement.style.filter;
+ c.addEventListener('pointerdown',e=>{flatDrag=e.pointerId;flatLastX=e.clientX;c.setPointerCapture?.(e.pointerId);c.style.cursor='grabbing';});
+ c.addEventListener('pointermove',e=>{if(flatDrag!==e.pointerId)return;flatRotation+=(e.clientX-flatLastX)*.45;flatLastX=e.clientX;updateFlatTransform();});
+ const end=e=>{if(flatDrag===e.pointerId)flatDrag=null;c.style.cursor='grab';};c.addEventListener('pointerup',end);c.addEventListener('pointercancel',end);
+ document.body.appendChild(c);flatCanvas=c;flatScale=1;flatRotation=0;renderer.domElement.style.display='none';updateFlatTransform();
+ document.getElementById('flatMode').textContent='🌐 360°';status.textContent='Modo plano · arrastra para girar · rueda para zoom · ↶ ↷ para rotar 90°';
+}
+document.getElementById('flatMode').addEventListener('click',toggleFlatMode);
+function updatePlanetTransform(){
+ if(tinyCanvas)tinyCanvas.style.transform='translate(-50%,-50%) scale('+planetScale+') rotate('+planetRotation+'deg)';
+}
+function applyEffect(mode){
+ if(!loaded||!renderer)return;
+ if(flatCanvas){flatCanvas.remove();flatCanvas=null;document.getElementById('flatMode').textContent='▭ Plano';}
+ if(tinyCanvas){tinyCanvas.remove();tinyCanvas=null;}
+ planetScale=1;planetRotation=0;
+ renderer.domElement.style.display='block';renderer.domElement.style.filter='none';
+ camera.up.set(0,1,0);camera.position.set(0,0,.01);camera.fov=75;
+ if(mode==='fisheye')camera.fov=105;
+ if(mode==='cinema')renderer.domElement.style.filter='contrast(1.16) saturate(1.22) brightness(.94)';
+ if(mode==='bw')renderer.domElement.style.filter='grayscale(1) contrast(1.12)';
+ if(mode==='warm')renderer.domElement.style.filter='sepia(.28) saturate(1.35)';
+ if(mode==='cool')renderer.domElement.style.filter='saturate(.9) hue-rotate(12deg) contrast(1.08)';
+ if(mode==='tiny'||mode==='little')makePlanet(mode==='little');
+ camera.updateProjectionMatrix();if(controls){controls.reset();controls.target.set(0,0,0);controls.update();}
+ const labels={normal:'Vista panorámica 360°',tiny:'Tiny Planet · proyección estereográfica',little:'Little Planet invertido · proyección estereográfica',fisheye:'Ojo de pez · gran angular',cinema:'Efecto cinematográfico',bw:'Blanco y negro',warm:'Tono cálido',cool:'Tono frío'};
+ status.textContent=labels[mode]||'Efecto aplicado';
+}
+function makePlanet(inverted){
+ const source=texture.image,w=source.width,h=source.height,size=900;
+ const canvas=document.createElement('canvas');canvas.width=size;canvas.height=size;
+ const ctx=canvas.getContext('2d',{willReadFrequently:true});
+ const src=document.createElement('canvas');src.width=w;src.height=h;
+ const sx=src.getContext('2d',{willReadFrequently:true});sx.drawImage(source,0,0,w,h);
+ const pixels=sx.getImageData(0,0,w,h).data,out=ctx.createImageData(size,size),d=out.data;
+ for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+  const nx=(x-size/2)/(size/2),ny=(y-size/2)/(size/2),r2=nx*nx+ny*ny,i=(y*size+x)*4;
+  if(r2>1){d[i+3]=0;continue;}
+  const z=(1-r2)/(1+r2),k=2/(1+r2),dx=nx*k,dy=z*(inverted?-1:1),dz=ny*k;
+  const lon=Math.atan2(dx,dz),lat=Math.asin(Math.max(-1,Math.min(1,dy)));
+  const u=((lon/(Math.PI*2)+.5)%1+1)%1,v=Math.max(0,Math.min(1,.5-lat/Math.PI));
+  const px=Math.min(w-1,Math.floor(u*w)),py=Math.min(h-1,Math.floor(v*h)),p=(py*w+px)*4;
+  d[i]=pixels[p];d[i+1]=pixels[p+1];d[i+2]=pixels[p+2];d[i+3]=255;
+ }
+ ctx.putImageData(out,0,0);canvas.id='planetPreview';
+ canvas.style.cssText='position:fixed;z-index:6;left:50%;top:50%;width:min(92vmin,900px);height:min(92vmin,900px);object-fit:contain;background:transparent;touch-action:none;transform-origin:center center;cursor:grab;user-select:none';
+ canvas.addEventListener('pointerdown',e=>{planetDrag=e.pointerId;planetLastX=e.clientX;planetLastY=e.clientY;canvas.setPointerCapture?.(e.pointerId);canvas.style.cursor='grabbing';});
+ canvas.addEventListener('pointermove',e=>{if(planetDrag!==e.pointerId)return;planetRotation+=(e.clientX-planetLastX)*.45;planetLastX=e.clientX;planetLastY=e.clientY;updatePlanetTransform();});
+ const endPlanetDrag=e=>{if(planetDrag===e.pointerId)planetDrag=null;canvas.style.cursor='grab';};
+ canvas.addEventListener('pointerup',endPlanetDrag);canvas.addEventListener('pointercancel',endPlanetDrag);
+ let planetPinch=0;
+ const planetTouchDistance=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+ canvas.addEventListener('touchstart',e=>{if(e.touches.length===2)planetPinch=planetTouchDistance(e.touches);},{passive:true});
+ canvas.addEventListener('touchmove',e=>{if(e.touches.length!==2||!planetPinch)return;e.preventDefault();const d=planetTouchDistance(e.touches);if(d>0){planetScale=THREE.MathUtils.clamp(planetScale*d/planetPinch,.25,12);updatePlanetTransform();}planetPinch=d;},{passive:false});
+ const clearPlanetPinch=()=>{planetPinch=0;};canvas.addEventListener('touchend',clearPlanetPinch,{passive:true});canvas.addEventListener('touchcancel',clearPlanetPinch,{passive:true});
+ document.body.appendChild(canvas);tinyCanvas=canvas;renderer.domElement.style.display='none';updatePlanetTransform();
+}
+document.getElementById('effects').addEventListener('change',e=>applyEffect(e.target.value));
+document.getElementById('download').addEventListener('click',()=>{
+ if(!loaded||!currentFile)return;
+ const mode=document.getElementById('effects').value;
+ let sourceCanvas=tinyCanvas;
+ if(!sourceCanvas){
+  renderer.render(scene,camera);
+  sourceCanvas=renderer.domElement;
+ }
+ const output=document.createElement('canvas');
+ output.width=sourceCanvas.width;output.height=sourceCanvas.height;
+ const ctx=output.getContext('2d');
+ ctx.fillStyle='#030711';ctx.fillRect(0,0,output.width,output.height);
+ if(!tinyCanvas){
+  const filter=getComputedStyle(renderer.domElement).filter;
+  ctx.filter=filter&&filter!=='none'?filter:'none';
+ }
+ ctx.drawImage(sourceCanvas,0,0,output.width,output.height);
+ const a=document.createElement('a');
+ const base=currentFile.replace(/\\.jpe?g$/i,'');
+ a.download=base+'_'+mode+'_KENAI360.png';
+ a.href=output.toDataURL('image/png');
+ document.body.appendChild(a);a.click();a.remove();
+ status.textContent='Descargando la vista actual: '+mode;
+});
+
+window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
+
+init();
+</script>
+<script>
+(async()=>{
+ const panel=document.getElementById('galleryPanel');
+ const status=document.getElementById('status');
+ const count=document.getElementById('photoCount');
+ const preview=document.getElementById('photoPreview');
+ const name=document.getElementById('photoName');
+ const position=document.getElementById('photoPosition');
+ const search=document.getElementById('photoSearchInput');
+ const clearSearch=document.getElementById('photoSearchClear');
+ const prev=document.getElementById('photoPrev');
+ const next=document.getElementById('photoNext');
+ const select=document.getElementById('photoSelect');
+ let files=[],filteredFiles=[],index=0;
+ document.getElementById('toggleGallery').addEventListener('click',()=>{
+  if(panel.classList.contains('visible'))panel.classList.remove('visible');
+  else{document.getElementById('welcome')?.classList.add('hidden');panel.classList.add('visible');}
+ });
+ function showPhoto(){
+  if(!filteredFiles.length){preview.removeAttribute('src');name.textContent='No se encontraron fotografías.';position.textContent='0 resultados';prev.disabled=next.disabled=true;return;}
+  const file=filteredFiles[index];
+  preview.src='./fotos/'+encodeURIComponent(file);
+  preview.alt='Vista previa de '+file;
+  name.textContent=file;
+  position.textContent=(index+1)+' / '+filteredFiles.length+' fotografías';
+  count.textContent=files.length+' fotos';
+  prev.disabled=index===0;
+  next.disabled=index===filteredFiles.length-1;
+ }
+ prev.addEventListener('click',()=>{if(index>0){index--;showPhoto();}});
+ next.addEventListener('click',()=>{if(index<filteredFiles.length-1){index++;showPhoto();}});
+ select.addEventListener('click',()=>{if(filteredFiles[index])window.loadStored360?.(filteredFiles[index]);});
+ function filterPhotos(){
+  const query=search.value.trim().toLocaleLowerCase();
+  filteredFiles=query?files.filter(file=>file.toLocaleLowerCase().includes(query)):files.slice();
+  index=0;showPhoto();
+  count.textContent=filteredFiles.length+' de '+files.length+' fotos';
+ }
+ search.addEventListener('input',filterPhotos);
+ clearSearch.addEventListener('click',()=>{search.value='';filterPhotos();search.focus();});
+ preview.addEventListener('error',()=>{name.textContent='No se pudo cargar esta vista previa';});
+ try{
+  const response=await fetch('./fotos/lista.json',{cache:'default'});
+  if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
+  const data=await response.json();
+  if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
+  files=[...new Set(data.filter(file=>typeof file==='string'&&file.trim()).map(file=>file.trim()))];
+  if(!files.length){name.textContent='Todavía no hay fotografías.';position.textContent='';prev.disabled=next.disabled=true;return;}
+  filteredFiles=files.slice();
+  showPhoto();
+  status.textContent=files.length+' fotografías disponibles · Busca por nombre o usa las flechas';
+ }catch(error){
+  console.error(error);name.textContent='No se pudo cargar la galería';position.textContent=error.message;
+  status.textContent='Error en la galería: '+error.message;
+ }
+})();
+</script>
+</body>
+</html>
