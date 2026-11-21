@@ -231,6 +231,49 @@ button:disabled::after{animation-play-state:paused;opacity:.45}
 /* Vista directa para la carpeta de la abuela */
 #welcome{display:none!important}
 #galleryPanel{display:block!important}
+
+/* Ajuste general de galería: evita que el contenido quede cortado o desplazado */
+#galleryPanel{
+  inset:82px 4vw 104px !important;
+  width:auto;
+  max-width:1200px;
+  margin-inline:auto;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scroll-behavior:smooth;
+}
+#galleryPanel .galleryHeading{position:sticky;top:-1px;z-index:3;background:rgba(28,29,41,.97);padding:8px 4px 14px;margin:0 0 10px}
+#photoChooser{
+  min-height:0 !important;
+  height:auto;
+  gap:clamp(8px,2vw,18px);
+  padding:4px 0;
+}
+#photoSelect{width:min(70vw,760px);max-width:100%;min-width:0}
+#photoPreview{
+  height:clamp(180px,38vh,310px) !important;
+  max-height:310px;
+  object-fit:contain !important;
+}
+#photoPosition{padding-bottom:4px}
+.photoSearch{position:sticky;bottom:-1px;z-index:3;background:rgba(28,29,41,.97);padding:10px 0 2px;margin-top:8px}
+@media(max-width:700px){
+  #galleryPanel{inset:70px 8px 116px !important;padding:12px !important;border-radius:18px}
+  #galleryPanel .galleryHeading{gap:6px}
+  #photoChooser{gap:5px}
+  #photoChooser>button:not(.photoSelect){flex:0 0 38px;width:38px;height:38px;padding:4px}
+  #photoSelect{width:calc(100% - 86px);padding:7px}
+  #photoPreview{height:clamp(150px,32vh,240px) !important}
+  .photoSearch{max-width:100%;gap:6px}
+  .photoSearch input{font-size:14px}
+}
+@media(max-height:560px){
+  #galleryPanel{inset:58px 3vw 88px !important;padding:10px !important}
+  #photoPreview{height:clamp(120px,30vh,190px) !important}
+}
+
 </style>
 </head>
 <body>
