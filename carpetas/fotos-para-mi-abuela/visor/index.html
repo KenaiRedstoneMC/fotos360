@@ -777,6 +777,22 @@ init();
  const prev=document.getElementById('photoPrev');
  const next=document.getElementById('photoNext');
  let files=[],visible=[],index=0;
+ let previewRequest=0,previewObjectUrl=null;
+ async function refreshPreview(file){
+  const request=++previewRequest;
+  const url='./fotos/'+encodeURIComponent(file)+'?refresh='+Date.now();
+  try{
+   const response=await fetch(url,{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   const blob=await response.blob();
+   if(request!==previewRequest)return;
+   const objectUrl=URL.createObjectURL(blob);
+   const oldUrl=previewObjectUrl;
+   previewObjectUrl=objectUrl;
+   image.onload=()=>{if(oldUrl)URL.revokeObjectURL(oldUrl);};
+   image.src=objectUrl;
+  }catch(error){if(request===previewRequest)image.src=url;}
+ }
  function preloadNext(){
   if(visible.length<2)return;
   const upcoming=visible[(index+1)%visible.length];
@@ -793,7 +809,7 @@ init();
   index=(index+visible.length)%visible.length;
   const file=visible[index];
   image.alt='Vista previa de '+file;
-  image.src='./fotos/'+encodeURIComponent(file)+'?v='+Date.now();
+  refreshPreview(file);
   imageName.textContent=file;
   position.textContent=(index+1)+' / '+visible.length;
   count.textContent=visible.length===files.length?files.length+' fotos':visible.length+' de '+files.length+' fotos';
