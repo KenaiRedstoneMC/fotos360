@@ -287,13 +287,24 @@ body.xr-mode,body.xr-mode #stage,body.xr-mode canvas{width:100%;height:100%;over
 .photoCard span{display:block;padding:12px 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .photoCard:focus-visible{outline:3px solid #8bd8ff;outline-offset:3px;}
 @media(max-width:700px){#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.photoCard img{height:118px}.photoCard span{padding:9px;font-size:.72rem}}
+
+/* Galería en carrusel: una sola foto en pantalla y carga bajo demanda */
+#galleryGrid{display:none!important}
+.photoCarousel{display:flex;align-items:center;justify-content:center;gap:clamp(8px,2vw,22px);min-height:min(58vh,540px);width:100%;margin:18px auto 0}
+.photoCarousel>button:not(.photoOpen){flex:0 0 54px;width:54px;height:54px;padding:0;border-radius:50%;font-size:2rem;line-height:1}
+.photoOpen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;width:min(72vw,850px);min-width:0;padding:12px;border-radius:20px;background:rgba(255,255,255,.055);border:1px solid #268fff66}
+.photoOpen img{display:block;width:100%;height:min(54vh,470px);object-fit:contain;border-radius:13px;background:#020711}
+#photoCarouselName{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#eaf7ff;font-size:.9rem}
+#photoPosition{text-align:center;color:#9fc7e7;margin:10px 0 4px;font-size:.85rem}
+.photoOpen:disabled{opacity:.5}
+@media(max-width:600px){.photoCarousel{gap:5px;min-height:48vh}.photoCarousel>button:not(.photoOpen){flex-basis:40px;width:40px;height:44px;font-size:1.6rem}.photoOpen{width:calc(100% - 90px);padding:7px;gap:8px}.photoOpen img{height:38vh}#photoCarouselName{font-size:.72rem}}
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <div id="welcome" class="hidden"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="../../../carpetas/">📁 Carpetas</a><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
 <div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard para móviles">📱 Cardboard</button><button id="questVR" disabled title="Realidad virtual estereoscópica para Meta Quest 3">🥽 Quest 3 VR</button></div>
-<section id="galleryPanel" class="visible" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Selecciona una fotografía para abrir el visor 360°</small></div><small id="photoCount">Cargando…</small></div><div class="photoSearch"><input id="photoSearchInput" type="search" placeholder="Buscar fotografía por nombre…" aria-label="Buscar fotografías por texto" autocomplete="off"><button id="photoSearchClear" type="button">Limpiar</button></div><div id="galleryGrid" class="galleryGrid" aria-live="polite"><p class="emptyGallery">Cargando fotografías…</p></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
+<section id="galleryPanel" class="visible" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Selecciona una fotografía para abrir el visor 360°</small></div><small id="photoCount">Cargando…</small></div><div class="photoSearch"><input id="photoSearchInput" type="search" placeholder="Buscar fotografía por nombre…" aria-label="Buscar fotografías por texto" autocomplete="off"><button id="photoSearchClear" type="button">Limpiar</button></div><div id="photoCarousel" class="photoCarousel" aria-live="polite"><button id="photoPrev" type="button" aria-label="Fotografía anterior">‹</button><button id="photoOpen" type="button" class="photoOpen" aria-label="Abrir fotografía en el visor 360°"><img id="photoCarouselImage" alt="Fotografía seleccionada" decoding="async"><span id="photoCarouselName">Cargando fotografías…</span></button><button id="photoNext" type="button" aria-label="Fotografía siguiente">›</button></div><div id="photoPosition" aria-live="polite">Cargando…</div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
@@ -756,57 +767,73 @@ init();
 </script>
 <script>
 (async()=>{
- const grid=document.getElementById('galleryGrid');
  const count=document.getElementById('photoCount');
  const search=document.getElementById('photoSearchInput');
  const clearSearch=document.getElementById('photoSearchClear');
- let files=[];
- function render(){
-  const query=search.value.trim().toLocaleLowerCase();
-  const visible=files.filter(file=>file.toLocaleLowerCase().includes(query));
-  count.textContent=visible.length===files.length?files.length+' fotos':visible.length+' de '+files.length+' fotos';
-  grid.replaceChildren();
-  if(!visible.length){
-   const empty=document.createElement('p');
-   empty.className='emptyGallery';
-   empty.textContent=files.length?'No se encontraron fotografías.':'Todavía no hay fotografías.';
-   grid.appendChild(empty);
-   return;
-  }
-  for(const file of visible){
-   const card=document.createElement('button');
-   card.type='button';
-   card.className='photoCard';
-   card.setAttribute('aria-label','Abrir '+file+' en el visor 360°');
-   const img=document.createElement('img');
-   img.loading='lazy';
-   img.src='./fotos/'+encodeURIComponent(file);
-   img.alt='Miniatura de '+file;
-   img.addEventListener('error',()=>{img.alt='No se pudo cargar '+file;img.removeAttribute('src');});
-   const label=document.createElement('span');
-   label.textContent=file;
-   card.append(img,label);
-   card.addEventListener('click',()=>window.loadStored360?.(file));
-   grid.appendChild(card);
-  }
+ const image=document.getElementById('photoCarouselImage');
+ const imageName=document.getElementById('photoCarouselName');
+ const position=document.getElementById('photoPosition');
+ const open=document.getElementById('photoOpen');
+ const prev=document.getElementById('photoPrev');
+ const next=document.getElementById('photoNext');
+ let files=[],visible=[],index=0;
+ function preloadNext(){
+  if(visible.length<2)return;
+  const upcoming=visible[(index+1)%visible.length];
+  const preload=new Image();
+  preload.src='./fotos/'+encodeURIComponent(upcoming);
  }
- search.addEventListener('input',render);
- clearSearch.addEventListener('click',()=>{search.value='';render();search.focus();});
+ function show(){
+  if(!visible.length){
+   image.removeAttribute('src');image.alt='Sin fotografías';
+   imageName.textContent=files.length?'No se encontraron fotografías.':'Todavía no hay fotografías.';
+   position.textContent='0 fotografías';count.textContent='0 fotos';
+   open.disabled=true;prev.disabled=true;next.disabled=true;return;
+  }
+  index=(index+visible.length)%visible.length;
+  const file=visible[index];
+  image.alt='Vista previa de '+file;
+  image.src='./fotos/'+encodeURIComponent(file);
+  imageName.textContent=file;
+  position.textContent=(index+1)+' / '+visible.length;
+  count.textContent=visible.length===files.length?files.length+' fotos':visible.length+' de '+files.length+' fotos';
+  open.disabled=false;prev.disabled=visible.length<2;next.disabled=visible.length<2;
+  preloadNext();
+ }
+ function filter(){
+  const query=search.value.trim().toLocaleLowerCase();
+  visible=files.filter(file=>file.toLocaleLowerCase().includes(query));
+  index=0;show();
+ }
+ prev.addEventListener('click',()=>{index=(index-1+visible.length)%visible.length;show();});
+ next.addEventListener('click',()=>{index=(index+1)%visible.length;show();});
+ open.addEventListener('click',()=>{if(visible[index])window.loadStored360?.(visible[index]);});
+ search.addEventListener('input',filter);
+ clearSearch.addEventListener('click',()=>{search.value='';filter();search.focus();});
+ document.addEventListener('keydown',event=>{
+  if(!visible.length||document.activeElement===search)return;
+  if(event.key==='ArrowLeft'){index=(index-1+visible.length)%visible.length;show();}
+  if(event.key==='ArrowRight'){index=(index+1)%visible.length;show();}
+ });
+ let touchStartX=0;
+ image.addEventListener('touchstart',event=>{touchStartX=event.changedTouches[0].clientX;},{passive:true});
+ image.addEventListener('touchend',event=>{
+  const delta=event.changedTouches[0].clientX-touchStartX;
+  if(Math.abs(delta)>45&&visible.length>1){index=(index+(delta<0?1:-1)+visible.length)%visible.length;show();}
+  touchStartX=0;
+ },{passive:true});
+ image.addEventListener('error',()=>{image.alt='No se pudo cargar '+(visible[index]||'la fotografía');});
  try{
   const response=await fetch('./fotos/lista.json',{cache:'default'});
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
   files=[...new Set(data.filter(file=>typeof file==='string'&&file.trim()).map(file=>file.trim()))];
-  render();
+  filter();
  }catch(error){
-  console.error(error);
-  count.textContent='Error';
-  grid.innerHTML='';
-  const message=document.createElement('p');
-  message.className='emptyGallery';
-  message.textContent='No se pudo cargar la galería: '+error.message;
-  grid.appendChild(message);
+  console.error(error);count.textContent='Error';
+  imageName.textContent='No se pudo cargar la galería: '+error.message;
+  position.textContent='Error al cargar';open.disabled=true;prev.disabled=true;next.disabled=true;
  }
 })();
 </script>
