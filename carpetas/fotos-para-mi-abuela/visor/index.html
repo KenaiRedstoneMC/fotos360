@@ -15,7 +15,8 @@
 .actions{display:flex;gap:8px;pointer-events:auto}button{border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:10px 15px;font-weight:700;cursor:pointer;backdrop-filter:blur(10px)}button:hover,select:hover{border-color:#a4f43b;color:#a4f43b}button:disabled{opacity:.4;cursor:default}select{max-width:180px;border:1px solid #ffffff40;background:#101810d9;color:#fff;border-radius:999px;padding:9px 12px;font-weight:700}
 #file{display:none}
 #vrExit{display:none;position:fixed;z-index:30;top:max(12px,env(safe-area-inset-top));right:12px;background:#061522eF;border:1px solid #00f0c8;color:#eaffff;padding:12px 16px;box-shadow:0 0 22px #00d9ff55}
-body.vr-mode .top,body.vr-mode #status,body.vr-mode #galleryPanel,body.vr-mode #welcome{display:none!important}body.vr-mode #vrExit{display:block}body.vr-mode #stage{inset:0}
+body.vr-mode .top,body.vr-mode #status,body.vr-mode #galleryPanel,body.vr-mode
+body.vr-mode #vrExit{display:block}body.vr-mode #stage{inset:0}
 #welcome{position:fixed;z-index:4;inset:0;display:grid;place-items:center;text-align:center;padding:24px;background:radial-gradient(ellipse at center,#19291a,#050705 70%)}
 .content{max-width:440px}.logo{font-size:clamp(2.4rem,9vw,4.5rem);font-weight:950;letter-spacing:-.07em;margin:0 0 8px}.logo span{color:#a4f43b}
 p{color:#c0c9c0;line-height:1.6;margin:0 0 22px}#choose{background:#a4f43b;color:#10170a;border:0;padding:13px 22px}
@@ -229,15 +230,70 @@ button:disabled::after{animation-play-state:paused;opacity:.45}
 @media(prefers-reduced-motion:reduce){button::after{animation:none;background:linear-gradient(90deg,#00e5ff,#d500f9,#00e5ff)}}
 
 /* Vista directa para la carpeta de la abuela */
-#welcome{display:none!important}
-#galleryPanel{display:block!important}
+/* Ajuste general de galería: evita que el contenido quede cortado o desplazado */
+#galleryPanel{
+  inset:82px 4vw 104px !important;
+  width:auto;
+  max-width:1200px;
+  margin-inline:auto;
+  overflow-x:hidden !important;
+  overflow-y:auto !important;
+  overscroll-behavior:contain;
+  scrollbar-gutter:stable;
+  scroll-behavior:smooth;
+}
+#galleryPanel .galleryHeading{position:sticky;top:-1px;z-index:3;background:rgba(28,29,41,.97);padding:8px 4px 14px;margin:0 0 10px}
+#photoChooser{
+  min-height:0 !important;
+  height:auto;
+  gap:clamp(8px,2vw,18px);
+  padding:4px 0;
+}
+#photoSelect{width:min(70vw,760px);max-width:100%;min-width:0}
+#photoPreview{
+  height:clamp(180px,38vh,310px) !important;
+  max-height:310px;
+  object-fit:contain !important;
+}
+#photoPosition{padding-bottom:4px}
+.photoSearch{position:sticky;bottom:-1px;z-index:3;background:rgba(28,29,41,.97);padding:10px 0 2px;margin-top:8px}
+@media(max-width:700px){
+  #galleryPanel{inset:70px 8px 116px !important;padding:12px !important;border-radius:18px}
+  #galleryPanel .galleryHeading{gap:6px}
+  #photoChooser{gap:5px}
+  #photoChooser>button:not(.photoSelect){flex:0 0 38px;width:38px;height:38px;padding:4px}
+  #photoSelect{width:calc(100% - 86px);padding:7px}
+  #photoPreview{height:clamp(150px,32vh,240px) !important}
+  .photoSearch{max-width:100%;gap:6px}
+  .photoSearch input{font-size:14px}
+}
+@media(max-height:560px){
+  #galleryPanel{inset:58px 3vw 88px !important;padding:10px !important}
+  #photoPreview{height:clamp(120px,30vh,190px) !important}
+}
+
+
+/* WebXR real: Quest 3 con seguimiento de cabeza y renderizado estereoscópico */
+body.vr-mode .actions,body.xr-mode .top,body.xr-mode .actions,body.xr-mode #status,body.xr-mode #galleryPanel,body.xr-mode #welcome{display:none!important}
+body.xr-mode #vrExit{display:block!important;z-index:99999;pointer-events:auto}
+body.xr-mode,body.xr-mode #stage,body.xr-mode canvas{width:100%;height:100%;overflow:hidden}
+#questVR{border-color:#8e9aff;background:linear-gradient(145deg,#454b7d,#242944);color:#fff}
+#questVR:disabled{opacity:.35}
+
+/* Galería directa: miniaturas visibles sin entrar en el visor */
+#galleryGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;margin-top:18px;}
+.photoCard{display:flex;flex-direction:column;min-width:0;padding:0;overflow:hidden;text-align:left;cursor:pointer;}
+.photoCard img{display:block;width:100%;height:160px;object-fit:cover;background:#071321;}
+.photoCard span{display:block;padding:12px 14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.photoCard:focus-visible{outline:3px solid #8bd8ff;outline-offset:3px;}
+@media(max-width:700px){#galleryGrid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.photoCard img{height:118px}.photoCard span{padding:9px;font-size:.72rem}}
 </style>
 </head>
 <body>
 <div id="stage"></div>
 <div id="welcome" class="hidden"><div class="content"><div class="logo">KENAI<span>360</span></div><p>Explora tus fotografías 360° de GoPro MAX en una esfera 3D interactiva.</p><button id="choose">Ver fotografías</button><br><a class="videoLink" href="../../../carpetas/">📁 Carpetas</a><br><a class="videoLink" href="https://www.youtube.com/playlist?list=PLSdpbsob1cec" target="_blank" rel="noopener noreferrer">▶ Ver vídeos 360° en YouTube</a></div></div>
-<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard VR">🥽 VR</button></div>
-<section id="galleryPanel" class="visible" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Orden de subida · de la más antigua a la más reciente</small></div><small id="photoCount"></small></div><div id="photoChooser" class="photoChooser"><button id="photoPrev" type="button" aria-label="Fotografía anterior">←</button><button id="photoSelect" class="photoSelect" type="button"><img id="photoPreview" alt="Vista previa"><span id="photoName">Cargando fotografías…</span></button><button id="photoNext" type="button" aria-label="Fotografía siguiente">→</button></div><div class="photoSearch"><input id="photoSearchInput" type="search" placeholder="Buscar fotografía por nombre…" aria-label="Buscar fotografías por texto" autocomplete="off"><button id="photoSearchClear" type="button">Limpiar</button></div><div id="photoPosition" class="photoPosition"></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
+<div class="top"><div class="brand">KENAI_<span>360 PLAYER</span></div></div><div class="actions"><button id="home" title="Volver al inicio">⌂ Inicio</button><button id="toggleGallery">Fotos</button><button id="videos" title="Abrir la lista de vídeos 360°">▶ Vídeos 360°</button><button id="reset" disabled>Recentrar</button><button id="flatMode" disabled title="Ver la foto plana y poder girarla">▭ Plano</button><button id="rotateLeft" disabled title="Girar la panorámica a la izquierda">↶ Girar</button><button id="rotateRight" disabled title="Girar la panorámica a la derecha">Girar ↷</button><select id="effects" aria-label="Efectos" disabled><option value="normal">Normal 360°</option><option value="tiny">Tiny Planet</option><option value="little">Little Planet invertido</option><option value="fisheye">Ojo de pez</option><option value="cinema">Cinemático</option><option value="bw">Blanco y negro</option><option value="warm">Cálido</option><option value="cool">Frío</option></select><button id="download" disabled>↓ Descargar</button><button id="full" disabled>⛶</button><button id="motion" disabled title="Mover la vista inclinando el móvil">🧭 Móvil</button><button id="vr" disabled title="Modo Cardboard para móviles">📱 Cardboard</button><button id="questVR" disabled title="Realidad virtual estereoscópica para Meta Quest 3">🥽 Quest 3 VR</button></div>
+<section id="galleryPanel" class="visible" aria-label="Galería de fotografías"><div class="galleryHeading"><div><h2>Mis fotografías 360°</h2><small>Selecciona una fotografía para abrir el visor 360°</small></div><small id="photoCount">Cargando…</small></div><div class="photoSearch"><input id="photoSearchInput" type="search" placeholder="Buscar fotografía por nombre…" aria-label="Buscar fotografías por texto" autocomplete="off"><button id="photoSearchClear" type="button">Limpiar</button></div><div id="galleryGrid" class="galleryGrid" aria-live="polite"><p class="emptyGallery">Cargando fotografías…</p></div></section><div id="status">Arrastra para girar la vista · Pellizca o usa la rueda para zoom · Usa ↶ ↷ para girar la foto</div><button id="vrExit" type="button">✕ Salir de VR</button>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
@@ -254,6 +310,8 @@ let renderer,scene,camera,controls,sphere,texture,loaded=false,currentFile='',ti
 let vrMode=false,deviceOrientation=null,screenAngle=0,vrPermissionGranted=false,preVrFov=75;
 const vrButton=document.getElementById("vr"),vrExit=document.getElementById("vrExit");
 const leftEye=new THREE.PerspectiveCamera(),rightEye=new THREE.PerspectiveCamera();
+let xrMode=false,xrSession=null;
+const questVRButton=document.getElementById("questVR");
 function init(){
  try {
  scene=new THREE.Scene();scene.background=new THREE.Color(0x050705);
@@ -261,7 +319,10 @@ function init(){
  camera.position.set(0,0,0.01);
  renderer=new THREE.WebGLRenderer({antialias:false,alpha:false,preserveDrawingBuffer:false,powerPreference:'low-power'});
  renderer.setPixelRatio(Math.min(devicePixelRatio,1.5));renderer.setSize(innerWidth,innerHeight);
- renderer.outputColorSpace=THREE.SRGBColorSpace;stage.appendChild(renderer.domElement);
+ renderer.outputColorSpace=THREE.SRGBColorSpace;
+ renderer.xr.enabled=true;
+ renderer.xr.setReferenceSpaceType("local");
+ stage.appendChild(renderer.domElement);
  controls=new OrbitControls(camera,renderer.domElement);
  controls.enablePan=false;controls.enableDamping=true;controls.dampingFactor=.06;
  controls.rotateSpeed=-.35;controls.zoomSpeed=.8;controls.minDistance=.01;controls.maxDistance=.01;
@@ -327,6 +388,8 @@ function resize(){
 }
 function drawFrame(){
  if(!renderer||!scene||!camera)return;
+ // En WebXR, Three.js genera automáticamente las dos vistas estereoscópicas y sigue la cabeza.
+ if(xrMode){renderer.setScissorTest(false);renderer.render(scene,camera);return;}
  const width=Math.max(1,renderer.domElement.clientWidth||innerWidth);
  const height=Math.max(1,renderer.domElement.clientHeight||innerHeight);
  renderer.setScissorTest(false);
@@ -356,7 +419,7 @@ function drawFrame(){
  renderer.setScissorTest(false);
 }
 window.addEventListener('wheel',e=>{if(!loaded)return;if(flatCanvas){flatScale=THREE.MathUtils.clamp(flatScale*Math.exp(-e.deltaY*.0015),.2,10);updateFlatTransform();}else if(tinyCanvas){planetScale=THREE.MathUtils.clamp(planetScale*Math.exp(-e.deltaY*.0015),.25,12);updatePlanetTransform();}else{camera.fov=THREE.MathUtils.clamp(camera.fov+e.deltaY*.045,.05,170);camera.updateProjectionMatrix();}},{passive:true});
-function animate(){let lastFrame=0;renderer.setAnimationLoop((time)=>{if(time-lastFrame<33)return;lastFrame=time;if(controls&&controls.enabled)controls.update();drawFrame()})}
+function animate(){let lastFrame=0;renderer.setAnimationLoop((time)=>{if(!xrMode&&time-lastFrame<33)return;lastFrame=time;if(controls&&controls.enabled)controls.update();drawFrame()})}
 function showGallery(){welcome.classList.add('hidden');galleryPanel.classList.add('visible')}
 function showHome(){galleryPanel.classList.remove('visible');welcome.classList.remove('hidden')}
 document.getElementById('choose').addEventListener('click',showGallery);
@@ -429,6 +492,37 @@ window.addEventListener('keydown',event=>{
  camera.lookAt(controls.target);
  controls.update();
 });
+async function enterMetaQuestVR(){
+ if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
+ if(!navigator.xr){status.textContent='Este navegador no ofrece WebXR. Abre Kenai 360 desde el navegador de Meta Quest 3.';return;}
+ try{
+  // La llamada se inicia directamente desde el toque del botón, como exige WebXR.
+  const sessionRequest=navigator.xr.requestSession('immersive-vr',{
+   optionalFeatures:['local-floor','bounded-floor','dom-overlay'],
+   domOverlay:{root:document.body}
+  });
+  const session=await sessionRequest;
+  xrSession=session;
+  await renderer.xr.setSession(session);
+  xrMode=true;
+  controls.enabled=false;
+  document.body.classList.add('xr-mode');
+  status.textContent='Meta Quest VR activo · mueve la cabeza para mirar alrededor';
+  session.addEventListener('end',()=>{
+   xrMode=false;xrSession=null;
+   document.body.classList.remove('xr-mode');
+   if(controls){controls.enabled=true;controls.reset();camera.position.set(0,0,.01);}
+   status.textContent='Sesión de realidad virtual finalizada';
+  },{once:true});
+ }catch(error){
+  console.error('No se pudo iniciar WebXR:',error);
+  xrMode=false;xrSession=null;document.body.classList.remove('xr-mode');
+  status.textContent='No se pudo iniciar Meta Quest VR: '+(error.message||error)+'. Comprueba que estás en el navegador de Quest y que la página usa HTTPS.';
+ }
+}
+async function exitMetaQuestVR(){
+ if(xrSession){try{await xrSession.end();}catch(error){console.warn('No se pudo cerrar la sesión VR',error);}}
+}
 async function enterCardboard(){
  if(!loaded){status.textContent='Abre primero una fotografía 360°.';return;}
  try{
@@ -504,7 +598,7 @@ function exitCardboard(){
  if(document.fullscreenElement)document.exitFullscreen?.().catch(()=>{});
  status.textContent='Modo Cardboard desactivado';
 }
-vrButton.addEventListener('click',enterCardboard);vrExit.addEventListener('click',exitCardboard);
+vrButton.addEventListener('click',enterCardboard);questVRButton.addEventListener('click',enterMetaQuestVR);vrExit.addEventListener('click',()=>{if(xrMode)exitMetaQuestVR();else exitCardboard();});
 // No salir automáticamente de Cardboard si el navegador abandona fullscreen al rotar el móvil.
 document.addEventListener('fullscreenchange',()=>{
  if(vrMode&&!document.fullscreenElement){
@@ -561,7 +655,7 @@ function loadImage(source,name){
   const material=new THREE.MeshBasicMaterial({map:texture,side:THREE.FrontSide,toneMapped:false});
   sphere=new THREE.Mesh(geometry,material);scene.add(sphere);
   controls.target.set(0,0,0);camera.position.set(0,0,.01);camera.fov=75;sphere.rotation.set(0,0,0);camera.updateProjectionMatrix();controls.update();
-  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;document.getElementById('flatMode').disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;vrButton.disabled=false;motionButton.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
+  loaded=true;welcome.classList.add('hidden');galleryPanel.classList.remove('visible');reset.disabled=false;document.getElementById('flatMode').disabled=false;rotateLeft.disabled=false;rotateRight.disabled=false;full.disabled=false;vrButton.disabled=false;questVRButton.disabled=false;motionButton.disabled=false;document.getElementById('effects').disabled=false;document.getElementById('download').disabled=false;document.getElementById('effects').value='normal';applyEffect('normal');
   status.textContent='Fotografía 360° cargada';
  },undefined,(err)=>{console.error('Fallo cargando imagen:',source,err);status.textContent='No se pudo cargar '+name+'. Comprueba que el JPG existe y que hay conexión.'});
 }
@@ -662,58 +756,57 @@ init();
 </script>
 <script>
 (async()=>{
- const panel=document.getElementById('galleryPanel');
- const status=document.getElementById('status');
+ const grid=document.getElementById('galleryGrid');
  const count=document.getElementById('photoCount');
- const preview=document.getElementById('photoPreview');
- const name=document.getElementById('photoName');
- const position=document.getElementById('photoPosition');
  const search=document.getElementById('photoSearchInput');
  const clearSearch=document.getElementById('photoSearchClear');
- const prev=document.getElementById('photoPrev');
- const next=document.getElementById('photoNext');
- const select=document.getElementById('photoSelect');
- let files=[],filteredFiles=[],index=0;
- document.getElementById('toggleGallery').addEventListener('click',()=>{
-  if(panel.classList.contains('visible'))panel.classList.remove('visible');
-  else{document.getElementById('welcome')?.classList.add('hidden');panel.classList.add('visible');}
- });
- function showPhoto(){
-  if(!filteredFiles.length){preview.removeAttribute('src');name.textContent='No se encontraron fotografías.';position.textContent='0 resultados';prev.disabled=next.disabled=true;return;}
-  const file=filteredFiles[index];
-  preview.src='./fotos/'+encodeURIComponent(file);
-  preview.alt='Vista previa de '+file;
-  name.textContent=file;
-  position.textContent=(index+1)+' / '+filteredFiles.length+' fotografías';
-  count.textContent=files.length+' fotos';
-  prev.disabled=index===0;
-  next.disabled=index===filteredFiles.length-1;
- }
- prev.addEventListener('click',()=>{if(index>0){index--;showPhoto();}});
- next.addEventListener('click',()=>{if(index<filteredFiles.length-1){index++;showPhoto();}});
- select.addEventListener('click',()=>{if(filteredFiles[index])window.loadStored360?.(filteredFiles[index]);});
- function filterPhotos(){
+ let files=[];
+ function render(){
   const query=search.value.trim().toLocaleLowerCase();
-  filteredFiles=query?files.filter(file=>file.toLocaleLowerCase().includes(query)):files.slice();
-  index=0;showPhoto();
-  count.textContent=filteredFiles.length+' de '+files.length+' fotos';
+  const visible=files.filter(file=>file.toLocaleLowerCase().includes(query));
+  count.textContent=visible.length===files.length?files.length+' fotos':visible.length+' de '+files.length+' fotos';
+  grid.replaceChildren();
+  if(!visible.length){
+   const empty=document.createElement('p');
+   empty.className='emptyGallery';
+   empty.textContent=files.length?'No se encontraron fotografías.':'Todavía no hay fotografías.';
+   grid.appendChild(empty);
+   return;
+  }
+  for(const file of visible){
+   const card=document.createElement('button');
+   card.type='button';
+   card.className='photoCard';
+   card.setAttribute('aria-label','Abrir '+file+' en el visor 360°');
+   const img=document.createElement('img');
+   img.loading='lazy';
+   img.src='./fotos/'+encodeURIComponent(file);
+   img.alt='Miniatura de '+file;
+   img.addEventListener('error',()=>{img.alt='No se pudo cargar '+file;img.removeAttribute('src');});
+   const label=document.createElement('span');
+   label.textContent=file;
+   card.append(img,label);
+   card.addEventListener('click',()=>window.loadStored360?.(file));
+   grid.appendChild(card);
+  }
  }
- search.addEventListener('input',filterPhotos);
- clearSearch.addEventListener('click',()=>{search.value='';filterPhotos();search.focus();});
- preview.addEventListener('error',()=>{name.textContent='No se pudo cargar esta vista previa';});
+ search.addEventListener('input',render);
+ clearSearch.addEventListener('click',()=>{search.value='';render();search.focus();});
  try{
   const response=await fetch('./fotos/lista.json',{cache:'default'});
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
   files=[...new Set(data.filter(file=>typeof file==='string'&&file.trim()).map(file=>file.trim()))];
-  if(!files.length){name.textContent='Todavía no hay fotografías.';position.textContent='';prev.disabled=next.disabled=true;return;}
-  filteredFiles=files.slice();
-  showPhoto();
-  status.textContent=files.length+' fotografías disponibles · Busca por nombre o usa las flechas';
+  render();
  }catch(error){
-  console.error(error);name.textContent='No se pudo cargar la galería';position.textContent=error.message;
-  status.textContent='Error en la galería: '+error.message;
+  console.error(error);
+  count.textContent='Error';
+  grid.innerHTML='';
+  const message=document.createElement('p');
+  message.className='emptyGallery';
+  message.textContent='No se pudo cargar la galería: '+error.message;
+  grid.appendChild(message);
  }
 })();
 </script>
