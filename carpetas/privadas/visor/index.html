@@ -698,7 +698,7 @@ document.getElementById('download').addEventListener('click',()=>{
  status.textContent='Descargando la vista actual: '+mode;
 });
 
-window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
+window.loadStored360=(file)=>loadImage('./fotos/'+encodeURIComponent(file)+'?v='+Date.now(),file.split('/').pop());
 
 init();
 </script>
@@ -723,7 +723,7 @@ init();
  function showPhoto(){
   if(!filteredFiles.length){preview.removeAttribute('src');name.textContent='No se encontraron fotografías.';position.textContent='0 resultados';prev.disabled=next.disabled=true;return;}
   const file=filteredFiles[index];
-  preview.src='./fotos/'+encodeURIComponent(file);
+  preview.src='./fotos/'+encodeURIComponent(file)+'?v='+Date.now();
   preview.alt='Vista previa de '+file;
   name.textContent=file;
   position.textContent=(index+1)+' / '+filteredFiles.length+' fotografías';
@@ -744,7 +744,7 @@ init();
  clearSearch.addEventListener('click',()=>{search.value='';filterPhotos();search.focus();});
  preview.addEventListener('error',()=>{name.textContent='No se pudo cargar esta vista previa';});
  try{
-  const response=await fetch('./fotos/lista.json',{cache:'default'});
+  const response=await fetch('./fotos/lista.json?v='+Date.now(),{cache:'no-store'});
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
