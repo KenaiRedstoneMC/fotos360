@@ -819,6 +819,22 @@ init();
  const next=document.getElementById('photoNext');
  const select=document.getElementById('photoSelect');
  let files=[],filteredFiles=[],index=0;
+ let previewRequest=0,previewObjectUrl=null;
+ async function refreshPreview(file){
+  const request=++previewRequest;
+  const url='./fotos/'+encodeURIComponent(file)+'?refresh='+Date.now();
+  try{
+   const response=await fetch(url,{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   const blob=await response.blob();
+   if(request!==previewRequest)return;
+   const objectUrl=URL.createObjectURL(blob);
+   const oldUrl=previewObjectUrl;
+   previewObjectUrl=objectUrl;
+   preview.onload=()=>{if(oldUrl)URL.revokeObjectURL(oldUrl);};
+   preview.src=objectUrl;
+  }catch(error){if(request===previewRequest)preview.src=url;}
+ }
  document.getElementById('toggleGallery').addEventListener('click',()=>{
   if(panel.classList.contains('visible'))panel.classList.remove('visible');
   else{document.getElementById('welcome')?.classList.add('hidden');panel.classList.add('visible');}
@@ -826,7 +842,7 @@ init();
  function showPhoto(){
   if(!filteredFiles.length){preview.removeAttribute('src');name.textContent='No se encontraron fotografías.';position.textContent='0 resultados';prev.disabled=next.disabled=true;return;}
   const file=filteredFiles[index];
-  preview.src='./fotos/'+encodeURIComponent(file)+'?v='+Date.now();
+  refreshPreview(file);
   preview.alt='Vista previa de '+file;
   name.textContent=file;
   position.textContent=(index+1)+' / '+filteredFiles.length+' fotografías';
