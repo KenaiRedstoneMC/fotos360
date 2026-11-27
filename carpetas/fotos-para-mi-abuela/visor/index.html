@@ -761,7 +761,7 @@ document.getElementById('download').addEventListener('click',()=>{
  status.textContent='Descargando la vista actual: '+mode;
 });
 
-window.loadStored360=(file)=>loadImage('./fotos/'+file,file.split('/').pop());
+window.loadStored360=(file)=>loadImage('./fotos/'+encodeURIComponent(file)+'?v='+Date.now(),file.split('/').pop());
 
 init();
 </script>
@@ -777,11 +777,27 @@ init();
  const prev=document.getElementById('photoPrev');
  const next=document.getElementById('photoNext');
  let files=[],visible=[],index=0;
+ let previewRequest=0,previewObjectUrl=null;
+ async function refreshPreview(file){
+  const request=++previewRequest;
+  const url='./fotos/'+encodeURIComponent(file)+'?refresh='+Date.now();
+  try{
+   const response=await fetch(url,{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   const blob=await response.blob();
+   if(request!==previewRequest)return;
+   const objectUrl=URL.createObjectURL(blob);
+   const oldUrl=previewObjectUrl;
+   previewObjectUrl=objectUrl;
+   image.onload=()=>{if(oldUrl)URL.revokeObjectURL(oldUrl);};
+   image.src=objectUrl;
+  }catch(error){if(request===previewRequest)image.src=url;}
+ }
  function preloadNext(){
   if(visible.length<2)return;
   const upcoming=visible[(index+1)%visible.length];
   const preload=new Image();
-  preload.src='./fotos/'+encodeURIComponent(upcoming);
+  preload.src='./fotos/'+encodeURIComponent(upcoming)+'?v='+Date.now();
  }
  function show(){
   if(!visible.length){
@@ -793,7 +809,7 @@ init();
   index=(index+visible.length)%visible.length;
   const file=visible[index];
   image.alt='Vista previa de '+file;
-  image.src='./fotos/'+encodeURIComponent(file);
+  refreshPreview(file);
   imageName.textContent=file;
   position.textContent=(index+1)+' / '+visible.length;
   count.textContent=visible.length===files.length?files.length+' fotos':visible.length+' de '+files.length+' fotos';
@@ -824,7 +840,7 @@ init();
  },{passive:true});
  image.addEventListener('error',()=>{image.alt='No se pudo cargar '+(visible[index]||'la fotografía');});
  try{
-  const response=await fetch('./fotos/lista.json',{cache:'default'});
+  const response=await fetch('./fotos/lista.json?v='+Date.now(),{cache:'no-store'});
   if(!response.ok)throw new Error('No se pudo leer fotos/lista.json (HTTP '+response.status+')');
   const data=await response.json();
   if(!Array.isArray(data))throw new Error('El archivo lista.json no contiene una lista válida.');
